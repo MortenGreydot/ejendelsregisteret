@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand */
+  --color-navy: #1c2d4f;
+
+  --color-plum: #443746;
+  --color-orange: #d2802e;
+  --color-orange-dark: #bb7028;
+  --color-mist: #eff1f4;
+  --color-line: #e3e6ea;
+  --color-body: #4f5763;
+  --color-muted: #8b93a1;
+
+  /* Typografi */
+  --font-display: var(--font-abhaya), Georgia, "Times New Roman", serif;
+  --font-accent: var(--font-lora), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-body);
+  font-family: var(--font-sans);
+}
+
+/* Fotobaggrunde: gradienten står alene, indtil filen i /public/images findes. */
+.photo-hero {
+  background-color: var(--color-navy);
+  background-image:
+    linear-gradient(rgba(18, 32, 51, 0.82), rgba(18, 32, 51, 0.88)),
+    url("/images/hero-sofa.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+.photo-protect {
+  background-color: #2c3a44;
+  background-image:
+    linear-gradient(
+      100deg,
+      rgba(20, 32, 45, 0.9) 0%,
+      rgba(20, 32, 45, 0.72) 45%,
+      rgba(20, 32, 45, 0.45) 100%
+    ),
+    url("/images/protect-people.jpg");
+  background-size: cover;
+  background-position: center 35%;
+}
+
+.photo-sofa {
+  background-color: #dfe4e0;
+  background-image:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.06)),
+    url("/images/sofa-green.jpg");
+  background-size: cover;
+  background-position: center;
+}
