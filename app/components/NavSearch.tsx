@@ -13,7 +13,13 @@ import { useRef, useState } from "react";
  * Åbner også på fokus og på klik. Hover findes ikke på touch, og et felt der
  * kun kan nås med mus ville være usynligt på telefon.
  */
-export function NavSearch() {
+export function NavSearch({
+  /** I mobilmenuen giver udfoldning på hover ingen mening — der er plads,
+   *  og hover findes ikke på touch. Så står feltet bare åbent. */
+  alwaysOpen = false,
+}: {
+  alwaysOpen?: boolean;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState("");
 
@@ -38,7 +44,7 @@ export function NavSearch() {
       action="/serienummer"
       onSubmit={handleSubmit}
       role="search"
-      className="group flex"
+      className={alwaysOpen ? "flex w-full" : "group flex"}
     >
       <label htmlFor="nav-soeg" className="sr-only">
         Søg på serienummer
@@ -46,7 +52,11 @@ export function NavSearch() {
 
       {/* Baggrunden toner ind sammen med bredden, så feltet ikke blot
           dukker op som en hvid firkant. */}
-      <div className="flex h-9 items-center rounded-sm bg-white/0 transition-colors duration-300 group-hover:bg-white group-focus-within:bg-white">
+      <div className={`flex h-9 items-center rounded-sm transition-colors duration-300 ${
+          alwaysOpen
+            ? "w-full bg-white"
+            : "bg-white/0 group-hover:bg-white group-focus-within:bg-white"
+        }`}>
         <input
           ref={inputRef}
           id="nav-soeg"
@@ -55,7 +65,11 @@ export function NavSearch() {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="Søg på serienummer"
-          className="h-full w-0 bg-transparent pl-0 text-[15px] text-navy opacity-0 transition-all duration-300 ease-out placeholder:text-muted focus:outline-none group-hover:w-56 group-hover:pl-3.5 group-hover:opacity-100 group-focus-within:w-56 group-focus-within:pl-3.5 group-focus-within:opacity-100 [&::-webkit-search-cancel-button]:hidden"
+          className={`h-full bg-transparent text-[15px] text-navy transition-all duration-300 ease-out placeholder:text-muted focus:outline-none [&::-webkit-search-cancel-button]:hidden ${
+            alwaysOpen
+              ? "w-full pl-3.5"
+              : "w-0 pl-0 opacity-0 group-hover:w-56 group-hover:pl-3.5 group-hover:opacity-100 group-focus-within:w-56 group-focus-within:pl-3.5 group-focus-within:opacity-100"
+          }`}
         />
 
         {value && (
@@ -76,7 +90,11 @@ export function NavSearch() {
           type="submit"
           onClick={handleTrigger}
           aria-label="Søg"
-          className="px-2.5 text-white/80 transition-colors duration-300 group-hover:text-navy group-hover:hover:text-orange group-focus-within:text-navy"
+          className={`px-2.5 transition-colors duration-300 ${
+            alwaysOpen
+              ? "text-navy hover:text-orange"
+              : "text-white/80 group-hover:text-navy group-hover:hover:text-orange group-focus-within:text-navy"
+          }`}
         >
           <Search className="size-[18px]" strokeWidth={1.75} />
         </button>

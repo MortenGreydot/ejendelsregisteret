@@ -1,5 +1,3 @@
-import { Layers } from "lucide-react";
-
 export function SerialSection() {
   return (
     <section className="bg-white">

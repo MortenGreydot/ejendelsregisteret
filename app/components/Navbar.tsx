@@ -2,6 +2,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 
 import { AudienceSwitch } from "./AudienceSwitch";
+import { MobileMenu } from "./MobileMenu";
 import { NavSearch } from "./NavSearch";
 import { AuthMenu } from "./AuthMenu";
 import { SectionNav } from "./SectionNav";
@@ -15,7 +16,7 @@ export async function Navbar() {
     <header>
       {/* Øverste bjælke */}
       <div className="bg-navy text-white">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-8 px-6">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-6 md:gap-8">
           <div className="flex items-center gap-3">
             {/* Logoet har selv en cirkel og en ring, så den tidligere
                 indpakning tegnede en ring uden om en ring. Størrelsen sættes
@@ -41,14 +42,19 @@ export async function Navbar() {
           <AudienceSwitch />
 
           <div className="ml-auto flex items-center gap-5">
-            <NavSearch />
-            <AuthMenu initialSignedIn={signedIn} />
+            {/* Søgefeltet og login-knapperne fylder for meget på en telefon
+                og flytter i stedet ind i skuffen. */}
+            <div className="hidden items-center gap-5 md:flex">
+              <NavSearch />
+              <AuthMenu initialSignedIn={signedIn} />
+            </div>
+            <MobileMenu signedIn={signedIn} />
           </div>
         </div>
       </div>
 
       {/* Sektionsbjælke */}
-      <div className="bg-plum text-white">
+      <div className="hidden bg-plum text-white md:block">
         <div className="mx-auto max-w-6xl px-6">
           <SectionNav />
         </div>
