@@ -1,24 +1,40 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { invokeFunction } from "@/lib/functions";
 import { PLANS, STEPS, type PlanId } from "@/lib/plans";
 
+import type { SubscriptionStatus } from "@/lib/subscription";
+
 import { useAudience } from "../AudienceProvider";
 import { PlanCard } from "./PlanCard";
 
 export function PricingHero({
-  hasSubscription,
+  signedIn,
+  status,
 }: {
-  hasSubscription: boolean;
+  signedIn: boolean;
+  status: SubscriptionStatus;
 }) {
+  const router = useRouter();
   const { audience } = useAudience();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const plan = PLANS[audience];
 
   async function handleSelect(planId: PlanId) {
+    // Uden en konto er der intet at betale for endnu. Send brugeren til
+    // oprettelsen i stedet for at afvise klikket — planen er allerede valgt
+    // via Privat/Erhverv, og flowet fortsætter med samme valg.
+    if (!signedIn) {
+      // Planen er allerede valgt her på siden, så oprettelsen skal ikke
+      // spørge om det samme igen.
+      router.push("/bliv-medlem?trin=konto");
+      return;
+    }
+
     setPending(true);
     setError(null);
 
@@ -50,7 +66,7 @@ export function PricingHero({
             plan={plan}
             onSelect={handleSelect}
             pending={pending}
-            hasSubscription={hasSubscription}
+            status={status}
           />
         </div>
 

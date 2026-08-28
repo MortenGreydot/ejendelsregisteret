@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import type { SubscriptionStatus } from "@/lib/subscription";
 import { createClient } from "@/lib/supabase/server";
 
 import { Navbar } from "../components/Navbar";
@@ -19,21 +20,23 @@ export default async function Priser() {
   // Har man allerede et aktivt medlemskab, giver "Kom i gang" ingen mening —
   // create-checkout ville alligevel afvise med 409. Bedre at sige det på
   // knappen end at lade brugeren opdage det efter et klik.
-  let hasSubscription = false;
+  const signedIn = Boolean(data?.claims?.sub);
+
+  let status: SubscriptionStatus = null;
   if (data?.claims?.sub) {
     const { data: sub } = await supabase
       .from("subscriptions")
       .select("status")
       .eq("user_id", data.claims.sub)
       .maybeSingle();
-    hasSubscription = sub?.status === "active";
+    status = (sub?.status ?? null) as SubscriptionStatus;
   }
 
   return (
     <>
       <Navbar />
       <main className="flex-1">
-        <PricingHero hasSubscription={hasSubscription} />
+        <PricingHero signedIn={signedIn} status={status} />
         <Faq />
       </main>
     </>

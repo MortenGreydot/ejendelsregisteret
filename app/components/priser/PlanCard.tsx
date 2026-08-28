@@ -2,19 +2,21 @@ import { Check, Plus } from "lucide-react";
 import Link from "next/link";
 
 import { vatLabel, type Plan } from "@/lib/plans";
+import { checkoutLabel, type SubscriptionStatus } from "@/lib/subscription";
 
 export function PlanCard({
   plan,
   onSelect,
   pending,
-  hasSubscription,
+  status,
 }: {
   plan: Plan;
   onSelect: (planId: Plan["id"]) => void;
   pending: boolean;
-  hasSubscription: boolean;
+  status: SubscriptionStatus;
 }) {
   const dark = plan.theme === "dark";
+  const hasSubscription = status === "active";
 
   return (
     <div
@@ -96,7 +98,7 @@ export function PlanCard({
           ? "Du er allerede medlem"
           : pending
             ? "Et øjeblik…"
-            : "Kom i gang"}
+            : checkoutLabel(status)}
       </button>
 
       {hasSubscription && (

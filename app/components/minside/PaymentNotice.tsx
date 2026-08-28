@@ -6,13 +6,9 @@ import { useState } from "react";
 import { invokeFunction } from "@/lib/functions";
 import type { PlanId } from "@/lib/plans";
 
-export type SubscriptionStatus =
-  | "pending_activation"
-  | "active"
-  | "past_due"
-  | "canceled"
-  | "expired"
-  | null;
+import type { SubscriptionStatus } from "@/lib/subscription";
+
+export type { SubscriptionStatus };
 
 /**
  * Forklarer hvorfor medlemskabet ikke er aktivt, og tilbyder at prøve igen.

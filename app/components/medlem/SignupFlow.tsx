@@ -56,7 +56,14 @@ function AudienceLink({
   );
 }
 
-export function SignupFlow({ signedIn }: { signedIn: boolean }) {
+export function SignupFlow({
+  signedIn,
+  skipPlanStep = false,
+}: {
+  signedIn: boolean;
+  /** Sat når brugeren kommer fra prissiden, hvor planen allerede er valgt. */
+  skipPlanStep?: boolean;
+}) {
   // Medlemskabet ER audience-valget. Havde flowet sin egen planId-tilstand,
   // kunne de to nå at pege forskellige steder hen — fx hvis man skiftede i
   // navbaren midt i forløbet.
@@ -64,7 +71,9 @@ export function SignupFlow({ signedIn }: { signedIn: boolean }) {
   const planId: PlanId = audience;
   const plan = PLANS[planId];
 
-  const [step, setStep] = useState<Step>("plan");
+  const [step, setStep] = useState<Step>(
+    skipPlanStep ? (signedIn ? "betaling" : "konto") : "plan",
+  );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

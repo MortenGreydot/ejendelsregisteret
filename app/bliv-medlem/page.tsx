@@ -11,7 +11,13 @@ export const metadata: Metadata = {
     "Opret dit medlemskab: vælg abonnement, opret konto og gennemfør betalingen.",
 };
 
-export default async function BlivMedlem() {
+export default async function BlivMedlem({
+  searchParams,
+}: PageProps<"/bliv-medlem">) {
+  const params = await searchParams;
+  // Kommer man fra prissiden, er medlemskabet allerede valgt der.
+  const skipPlanStep = params.trin === "konto";
+
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
 
@@ -23,7 +29,7 @@ export default async function BlivMedlem() {
       <Navbar />
       <main className="flex-1 bg-mist">
         <div className="px-6 py-16">
-          <SignupFlow signedIn={signedIn} />
+          <SignupFlow signedIn={signedIn} skipPlanStep={skipPlanStep} />
         </div>
       </main>
     </>
