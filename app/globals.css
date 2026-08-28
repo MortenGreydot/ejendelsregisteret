@@ -12,10 +12,20 @@
   --color-body: #4f5763;
   --color-muted: #8b93a1;
 
-  /* Typografi */
+  /* Typografi — Abhaya Libre hele vejen igennem.
+     Fallback er serif, ikke sans: falder webfonten væk, skal siden ikke
+     skifte karakter fuldstændigt. */
   --font-display: var(--font-abhaya), Georgia, "Times New Roman", serif;
-  --font-accent: var(--font-lora), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-accent: var(--font-abhaya), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-abhaya), Georgia, "Times New Roman", serif;
+}
+
+/* Låser siden bag en åben dialog.
+   showModal() gør baggrunden inert, men body scroller stadig — så både
+   dialogens indhold og siden bagved reagerer på hjulet. Gælder alle
+   dialoger, så hver enkelt slipper for sin egen scroll-lås. */
+html:has(dialog[open]) {
+  overflow: hidden;
 }
 
 body {
@@ -24,35 +34,54 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Fotobaggrunde: gradienten står alene, indtil filen i /public/images findes. */
+/* Fotobaggrunde.
+   Alle fire billeder har allerede en mørkning bagt ind, så gradienterne her
+   er bevidst svage — de skal kun sikre kontrast til teksten, ikke mørkne
+   billedet igen. Baggrundsfarven bag hvert billede matcher dets tone, så
+   der ikke blinker hvidt frem inden billedet er hentet. */
 .photo-hero {
-  background-color: var(--color-navy);
+  background-color: #26324a;
   background-image:
-    linear-gradient(rgba(18, 32, 51, 0.82), rgba(18, 32, 51, 0.88)),
-    url("/images/hero-sofa.jpg");
+    linear-gradient(rgba(20, 28, 45, 0.35), rgba(20, 28, 45, 0.45)),
+    url("/images/sofa-section.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.photo-tools {
+  background-color: #1c1a20;
+  /* Teksten står til venstre, så mørkningen aftager mod højre hvor boremaskinen er. */
+  background-image:
+    linear-gradient(
+      100deg,
+      rgba(18, 16, 22, 0.75) 0%,
+      rgba(18, 16, 22, 0.4) 55%,
+      rgba(18, 16, 22, 0.1) 100%
+    ),
+    url("/images/drill.png");
   background-size: cover;
   background-position: center;
 }
 
 .photo-protect {
   background-color: #2c3a44;
+  /* Billedet lysner selv mod højre; teksten står til venstre. */
   background-image:
     linear-gradient(
       100deg,
-      rgba(20, 32, 45, 0.9) 0%,
-      rgba(20, 32, 45, 0.72) 45%,
-      rgba(20, 32, 45, 0.45) 100%
+      rgba(20, 32, 45, 0.72) 0%,
+      rgba(20, 32, 45, 0.35) 55%,
+      rgba(20, 32, 45, 0) 100%
     ),
-    url("/images/protect-people.jpg");
+    url("/images/people.png");
   background-size: cover;
   background-position: center 35%;
 }
 
+/* Produktbillede uden tekst ovenpå — ingen mørkning. */
 .photo-sofa {
   background-color: #dfe4e0;
-  background-image:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.06)),
-    url("/images/sofa-green.jpg");
+  background-image: url("/images/sofa.png");
   background-size: cover;
   background-position: center;
 }

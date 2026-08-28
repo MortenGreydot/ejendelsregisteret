@@ -1,59 +1,77 @@
-import { Search } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
-const quickLinks = [
-  { label: "Hvad er ejendelsregisteret?", href: "#" },
-  { label: "Sådan virker det", href: "#" },
-  { label: "Se priser", href: "#" },
+import { vatLabel, type Plan } from "@/lib/plans";
+
+const USPS = [
+  "Klar til forsikringen",
+  "Findbar hvis den forsvinder",
+  "Overdrages ved salg",
 ];
 
-export function Hero() {
+export function Hero({ plan }: { plan: Plan }) {
   return (
     <section className="photo-hero">
-      <div className="mx-auto max-w-6xl px-6 py-24 text-center">
-        <h1 className="font-display text-5xl font-normal tracking-tight text-white sm:text-[54px]">
-          Ejendelsregisteret
-        </h1>
-        <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.25em] text-orange">
+      <div className="mx-auto max-w-3xl px-6 py-24 text-center">
+        <p className="text-[13px] font-semibold uppercase tracking-[0.25em] text-orange">
           Dækker alt &mdash; over alt
         </p>
-        <p className="mt-6 text-[15px] text-white/85">
-          Danmarks digitale tingbog for værdigenstande.
+
+        <h1 className="mt-5 font-display text-[46px] leading-[1.1] font-normal text-white sm:text-[56px]">
+          Bevis at dine ting er dine
+          <br />
+          <em className="font-accent text-orange">når det gælder</em>
+        </h1>
+
+        <p className="mx-auto mt-6 max-w-xl text-[17px] leading-[1.6] text-white/85">
+          Serienummer, kvittering og billeder samlet ét sted. Klar til
+          forsikringen den dag noget bliver væk, stjålet eller brændt.
         </p>
 
-        <form
-          action="#"
-          className="mt-8 flex flex-col items-center justify-center gap-2 sm:flex-row"
-        >
-          <label htmlFor="hero-serial" className="sr-only">
-            Serienummer
-          </label>
-          <input
-            id="hero-serial"
-            name="serienummer"
-            type="search"
-            placeholder="Indtast serienummer…"
-            className="h-11 w-full rounded-sm bg-white px-4 text-[14px] text-navy placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-orange sm:w-[320px]"
-          />
-          <button
-            type="submit"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-orange px-6 text-[14px] font-medium text-white transition-colors hover:bg-orange-dark"
-          >
-            <Search className="size-4" strokeWidth={2} />
-            Søg
-          </button>
-        </form>
-
-        <nav className="mt-7 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-[12px] text-white/70">
-          {quickLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="underline underline-offset-4 transition-colors hover:text-white"
-            >
-              {link.label}
-            </a>
+        <ul className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[14px] text-white/70">
+          {USPS.map((usp) => (
+            <li key={usp} className="flex items-center gap-2">
+              <span className="size-1 rounded-full bg-orange" />
+              {usp}
+            </li>
           ))}
-        </nav>
+        </ul>
+
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/bliv-medlem"
+            className="inline-flex h-12 items-center gap-2 rounded-sm bg-orange px-8 text-[16px] font-bold text-white transition-colors hover:bg-orange-dark"
+          >
+            Kom i gang
+            <ArrowRight className="size-4" strokeWidth={2.5} />
+          </Link>
+          <Link
+            href="/priser"
+            className="inline-flex h-12 items-center rounded-sm border border-white/40 px-8 text-[16px] font-medium text-white transition-colors hover:border-white hover:bg-white/10"
+          >
+            Se priser
+          </Link>
+        </div>
+
+        {/* Prisen står med det samme. Skal man klikke sig frem til den,
+            klikker mange i stedet væk. */}
+        <p className="mt-5 text-[13px] text-white/55">
+          {plan.setupFee} kr. i oprettelse &middot; {plan.monthlyPrice} kr./md.
+          &middot; {plan.includedItems} ejendele inkluderet &middot; opsig når
+          som helst &middot; {vatLabel(plan)}
+        </p>
+
+        {/* Finderen er ikke kunde og skal ikke igennem oprettelsen — men
+            det er ofte dem der lander her først. */}
+        <p className="mt-10 border-t border-white/15 pt-6 text-[14px] text-white/60">
+          Har du fundet noget?{" "}
+          <Link
+            href="/serienummer"
+            className="font-semibold text-white underline underline-offset-4 hover:text-orange"
+          >
+            Slå serienummeret op
+          </Link>
+        </p>
       </div>
     </section>
   );

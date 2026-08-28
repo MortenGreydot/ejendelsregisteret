@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 import { AuthDialog } from "./AuthDialog";
+import { SignOutButton } from "./SignOutButton";
 
 export function AuthMenu({ initialSignedIn }: { initialSignedIn: boolean }) {
   const [signedIn, setSignedIn] = useState(initialSignedIn);
@@ -23,16 +24,29 @@ export function AuthMenu({ initialSignedIn }: { initialSignedIn: boolean }) {
   }, []);
 
   if (!signedIn) {
-    return <AuthDialog />;
+    return (
+      <>
+        <AuthDialog />
+        <Link
+          href="/bliv-medlem"
+          className="rounded-sm bg-orange px-5 py-1.5 text-[15px] font-medium text-white transition-colors hover:bg-orange-dark"
+        >
+          Bliv medlem
+        </Link>
+      </>
+    );
   }
 
   return (
-    <Link
-      href="/min-side"
-      className="inline-flex items-center gap-2 rounded-sm border border-white/35 px-3.5 py-1.5 text-[13px] transition-colors hover:border-white hover:bg-white/10"
-    >
-      <UserRound className="size-4" strokeWidth={1.75} />
-      Min side
-    </Link>
+    <>
+      <Link
+        href={`/min-side`}
+        className="inline-flex items-center gap-2 rounded-sm border border-white/35 px-5 py-1.5 text-[15px] transition-colors hover:border-white hover:bg-white/10"
+      >
+        <UserRound className="size-4" strokeWidth={1.75} />
+        Min side
+      </Link>
+      <SignOutButton variant="navbar" />
+    </>
   );
 }

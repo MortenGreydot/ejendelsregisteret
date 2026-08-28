@@ -25,8 +25,7 @@ Medlemskab og abonnementsoplysninger.
 | `user_id`                | `UUID`          | Reference til bruger                                              |
 | `status`                 | `TEXT`          | `pending_activation`, `active`, `past_due`, `canceled`, `expired` |
 | `monthly_price`          | `NUMERIC(10,2)` | Månedlig pris (29 kr.)                                            |
-| `included_items`         | `INTEGER`       | Inkluderede ejendele (25)                                         |
-| `extra_item_price`       | `NUMERIC(10,2)` | Pris pr. ekstra ejendel (2 kr.)                                   |
+| `included_items`         | `INTEGER`       | Inkluderede ejendele (5) — visningsfelt, Stripe bestemmer         |
 | `stripe_customer_id`     | `TEXT`          | Stripe kunde-id                                                   |
 | `stripe_subscription_id` | `TEXT`          | Stripe abonnements-id                                             |
 | `activated_at`           | `TIMESTAMPTZ`   | Aktiveringsdato                                                   |
@@ -161,11 +160,3 @@ Betalingshistorik.
 | `item-documents` | Kvitteringer og dokumenter |
 
 ---
-
-# Betalingsmodel
-
-- Oprettelsesgebyr: **99 kr.**
-- Månedligt abonnement: **29 kr.**
-- Inkluderede ejendele: **25**
-- Ekstra ejendele: **2 kr. pr. ejendel pr. måned**
-- Betaling håndteres via **Stripe Checkout**, **Stripe Subscription** og **Stripe Invoice Items**.

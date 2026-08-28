@@ -1,7 +1,25 @@
 import path from "node:path";
 import type { NextConfig } from "next";
 
+const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
+  : undefined;
+
 const nextConfig: NextConfig = {
+  images: {
+    // next/image afviser fjerne værter der ikke står her. Værten udledes af
+    // env-variablen frem for at være hardkodet, så et projektskifte ikke
+    // kræver en kodeændring.
+    remotePatterns: supabaseHost
+      ? [
+          {
+            protocol: "https",
+            hostname: supabaseHost,
+            pathname: "/storage/v1/object/public/**",
+          },
+        ]
+      : [],
+  },
   // Lås workspace-rooten til projektmappen, så en package-lock.json
   // uden for repoet ikke bliver valgt som root.
   turbopack: {

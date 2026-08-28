@@ -1,80 +1,52 @@
-import { ArrowRight, FileText, Share2, ShieldCheck } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-type Step = {
-  icon: LucideIcon;
-  label: string;
-  title: string;
-  body: string;
-  link: string;
-};
-
-const steps: Step[] = [
+const steps = [
   {
-    icon: FileText,
-    label: "Registrér",
-    title: "Registrér dine ejendele",
-    body: "Tilføj serienummer, billeder og kvittering for dine ejendele. Det tager kun få minutter.",
-    link: "Læs mere",
+    title: "Registrér",
+    body: "Serienummer, billeder og kvittering. Det tager to minutter pr. ting.",
   },
   {
-    icon: ShieldCheck,
-    label: "Beskyt",
-    title: "Beskyt automatisk",
-    body: "Alle data krypteres og gemmes sikkert. Du kontrollerer hvem der ser hvad.",
-    link: "Forsikring & dokumentation",
+    title: "Kun din liste",
+    body: "Ingen andre kan se hvad du ejer. Slår nogen et helt serienummer op, ser de genstanden — aldrig hvem der ejer den.",
   },
   {
-    icon: Share2,
-    label: "Del",
-    title: "Del med de rigtige",
-    body: "Send til forsikring, politiet eller forhandleren med ét klik — dele vil du.",
-    link: "Om notifikationer",
+    title: "Send videre",
+    body: "Dokumentationen ryger til forsikring, politi eller forhandler med ét klik.",
   },
 ];
 
 export function HowItWorks() {
   return (
-    <section className="bg-white">
-      <div className="mx-auto max-w-6xl px-6 py-24">
-        <h2 className="text-center font-display text-[30px] font-normal uppercase tracking-[0.14em] text-navy">
-          Sådan virker det
-        </h2>
-
-        <div className="mt-16 grid gap-12 sm:grid-cols-3">
-          {steps.map((step) => (
-            <div key={step.title} className="text-center">
-              <span className="mx-auto flex size-14 items-center justify-center rounded-full border border-line text-navy">
-                <step.icon className="size-5" strokeWidth={1.5} />
-              </span>
-              <p className="mt-4 text-[9px] font-medium uppercase tracking-[0.2em] text-muted">
-                {step.label}
-              </p>
-              <h3 className="mt-3 font-display text-[19px] font-normal text-navy">
-                {step.title}
-              </h3>
-              <p className="mx-auto mt-3 max-w-[17rem] text-[12.5px] leading-[1.75] text-body">
-                {step.body}
-              </p>
-              <a
-                href="#"
-                className="mt-5 inline-flex items-center gap-1.5 text-[12px] font-medium text-orange transition-colors hover:text-orange-dark"
-              >
-                {step.link}
-                <ArrowRight className="size-3.5" strokeWidth={2} />
-              </a>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-16 text-center">
+    <section id="saadan-virker-det" className="scroll-mt-8 bg-white">
+      <div className="mx-auto max-w-5xl px-6 py-14">
+        <div className="flex flex-wrap items-baseline justify-between gap-4">
+          <h2 className="font-display text-[26px] font-normal text-navy">
+            Sådan virker det
+          </h2>
           <a
             href="#"
-            className="inline-flex h-11 items-center rounded-sm border border-line px-6 text-[14px] font-medium text-navy transition-colors hover:border-navy"
+            className="inline-flex items-center gap-1.5 text-[14px] font-medium text-orange transition-colors hover:text-orange-dark"
           >
             Læs den fulde guide
+            <ArrowRight className="size-3.5" strokeWidth={2} />
           </a>
         </div>
+
+        <ol className="mt-8 grid gap-px overflow-hidden rounded-sm bg-line sm:grid-cols-3">
+          {steps.map((step, index) => (
+            <li key={step.title} className="bg-white px-6 py-6">
+              <span className="font-display text-[15px] font-bold text-orange">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <h3 className="mt-2 font-display text-[19px] font-normal text-navy">
+                {step.title}
+              </h3>
+              <p className="mt-1.5 text-[14.5px] leading-[1.7] text-body">
+                {step.body}
+              </p>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );

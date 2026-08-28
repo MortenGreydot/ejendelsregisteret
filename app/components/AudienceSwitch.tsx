@@ -11,7 +11,7 @@ export function AudienceSwitch() {
   const { audience, setAudience } = useAudience();
 
   return (
-    <nav className="flex items-center gap-6 text-[13px]">
+    <nav className="flex items-center gap-6 text-[15px]">
       {options.map((option) => {
         const active = option.value === audience;
 

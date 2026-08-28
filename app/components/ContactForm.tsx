@@ -5,9 +5,9 @@ import { useState } from "react";
 import { useAudience } from "./AudienceProvider";
 
 const fieldClass =
-  "w-full rounded-sm border border-line bg-white px-3.5 text-[13px] text-navy placeholder:text-muted focus:border-orange focus:outline-none focus:ring-1 focus:ring-orange disabled:opacity-60";
+  "w-full rounded-sm border border-line bg-white px-3.5 text-[15px] text-navy placeholder:text-muted focus:border-orange focus:outline-none focus:ring-1 focus:ring-orange disabled:opacity-60";
 
-const labelClass = "block text-[12px] font-semibold text-navy";
+const labelClass = "block text-[14px] font-semibold text-navy";
 
 // Navnet skal se tillokkende ud for en bot, men ikke kollidere med et rigtigt felt.
 const HONEYPOT_FIELD = "website";
@@ -40,14 +40,14 @@ export function ContactForm() {
   if (sent) {
     return (
       <div className="rounded-sm border border-line bg-white px-6 py-8 text-center">
-        <p className="font-display text-[20px] text-navy">Tak for din besked</p>
-        <p className="mt-2 text-[13px] text-body">
+        <p className="font-display text-[22px] text-navy">Tak for din besked</p>
+        <p className="mt-2 text-[15px] text-body">
           Vi vender tilbage hurtigst muligt.
         </p>
         <button
           type="button"
           onClick={() => setSent(false)}
-          className="mt-5 text-[12px] font-medium text-orange hover:text-orange-dark"
+          className="mt-5 text-[14px] font-medium text-orange hover:text-orange-dark"
         >
           Skriv en ny besked
         </button>
@@ -159,7 +159,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={pending}
-        className="h-11 w-full rounded-sm bg-orange text-[14px] font-bold text-white transition-colors hover:bg-orange-dark disabled:opacity-70"
+        className="h-11 w-full rounded-sm bg-orange text-[16px] font-bold text-white transition-colors hover:bg-orange-dark disabled:opacity-70"
       >
         {pending ? "Sender…" : "Send besked"}
       </button>

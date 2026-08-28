@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const sections = [
   { label: "Forside", href: "/" },
   { label: "Kontakt", href: "/kontakt" },
-  { label: "Serienummer", href: "#" },
+  { label: "Serienummer", href: "/serienummer" },
   { label: "Priser", href: "/priser" },
 ] as const;
 
@@ -14,15 +14,15 @@ export function SectionNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex h-11 items-center gap-8 text-[13px]">
+    <nav className="flex h-11 items-center gap-8 text-[15px]">
       {sections.map((item) => {
-        // "#" er endnu ikke en rigtig side og kan derfor aldrig være aktiv.
         // Forsiden matcher kun eksakt, ellers ville den være aktiv overalt.
+        // De øvrige matcher også undersider: /kontakt/noget markerer Kontakt,
+        // men /kontakter gør ikke — derfor skråstregen i startsWith.
         const active =
-          item.href !== "#" &&
-          (item.href === "/"
+          item.href === "/"
             ? pathname === "/"
-            : pathname === item.href || pathname.startsWith(`${item.href}/`));
+            : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
         return (
           <Link

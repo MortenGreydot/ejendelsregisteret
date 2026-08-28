@@ -14,7 +14,7 @@
 /coverage
 .agents
 .claude
-./emails/
+./emails
 # next.js
 /.next/
 /out/
@@ -34,6 +34,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -54,3 +55,7 @@ Thumbs.db
 
 # claude code
 .claude/settings.local.json
+
+# auto-genereret af `next dev` når det køres fra en agent
+AGENTS.md
+CLAUDE.md

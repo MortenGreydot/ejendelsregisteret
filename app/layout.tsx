@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { Abhaya_Libre, Inter, Lora } from "next/font/google";
+import { Abhaya_Libre } from "next/font/google";
 import "./globals.css";
+
+import { getAudience } from "@/lib/audience";
 
 import { AudienceProvider } from "./components/AudienceProvider";
 
@@ -10,31 +12,22 @@ const abhaya = Abhaya_Libre({
   subsets: ["latin"],
 });
 
-const lora = Lora({
-  variable: "--font-lora",
-  style: ["italic"],
-  subsets: ["latin"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   title: "Ejendelsregisteret — Danmarks digitale tingbog for værdigenstande",
   description:
     "Registrér serienummer, kvittering og billeder på dine ejendele — så har du dokumentationen klar den dag du får brug for den.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const audience = await getAudience();
+
   return (
     <html
       lang="da"
-      className={`${abhaya.variable} ${lora.variable} ${inter.variable} h-full antialiased`}
+      className={`${abhaya.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <AudienceProvider>{children}</AudienceProvider>
+        <AudienceProvider initial={audience}>{children}</AudienceProvider>
       </body>
     </html>
   );

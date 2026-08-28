@@ -4,7 +4,7 @@ export function Faq() {
   return (
     <section className="bg-white">
       <div className="mx-auto max-w-2xl px-6 py-20">
-        <h2 className="text-center font-display text-[22px] font-normal text-navy">
+        <h2 className="text-center font-display text-[24px] font-normal text-navy">
           Ofte stillede spørgsmål
         </h2>
 
@@ -14,10 +14,10 @@ export function Faq() {
               key={item.question}
               className={index > 0 ? "border-t border-line pt-6" : ""}
             >
-              <dt className="text-[13px] font-bold text-navy">
+              <dt className="text-[15px] font-bold text-navy">
                 {item.question}
               </dt>
-              <dd className="mt-2 pb-6 text-[12.5px] leading-[1.7] text-body">
+              <dd className="mt-2 pb-6 text-[14.5px] leading-[1.7] text-body">
                 {item.answer}
               </dd>
             </div>

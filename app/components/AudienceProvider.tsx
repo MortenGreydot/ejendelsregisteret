@@ -1,66 +1,11 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useSyncExternalStore,
-} from "react";
+import { useRouter } from "next/navigation";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
-export type Audience = "privat" | "erhverv";
+import { AUDIENCE_COOKIE, type Audience } from "@/lib/audience-shared";
 
-const STORAGE_KEY = "ejendelsregisteret:audience";
-const DEFAULT_AUDIENCE: Audience = "privat";
-
-function isAudience(value: unknown): value is Audience {
-  return value === "privat" || value === "erhverv";
-}
-
-/**
- * Lille store uden for React, så valget kan læses fra localStorage uden
- * setState i en effect. useSyncExternalStore bruger getServerSnapshot under
- * SSR og hydrering og skifter først til den gemte værdi bagefter — derfor
- * opstår der ingen hydreringsfejl.
- */
-const listeners = new Set<() => void>();
-let cached: Audience | null = null;
-
-function getSnapshot(): Audience {
-  if (cached === null) {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    cached = isAudience(stored) ? stored : DEFAULT_AUDIENCE;
-  }
-  return cached;
-}
-
-function getServerSnapshot(): Audience {
-  return DEFAULT_AUDIENCE;
-}
-
-function subscribe(onStoreChange: () => void) {
-  listeners.add(onStoreChange);
-
-  // Holder faner i sync: storage-eventet fyrer kun i de andre faner.
-  const onStorage = (event: StorageEvent) => {
-    if (event.key === STORAGE_KEY) {
-      cached = null;
-      onStoreChange();
-    }
-  };
-  window.addEventListener("storage", onStorage);
-
-  return () => {
-    listeners.delete(onStoreChange);
-    window.removeEventListener("storage", onStorage);
-  };
-}
-
-function writeAudience(next: Audience) {
-  cached = next;
-  window.localStorage.setItem(STORAGE_KEY, next);
-  listeners.forEach((listener) => listener());
-}
+export type { Audience };
 
 type AudienceContextValue = {
   audience: Audience;
@@ -71,16 +16,42 @@ type AudienceContextValue = {
 
 const AudienceContext = createContext<AudienceContextValue | null>(null);
 
-export function AudienceProvider({ children }: { children: React.ReactNode }) {
-  const audience = useSyncExternalStore(
-    subscribe,
-    getSnapshot,
-    getServerSnapshot,
-  );
+/**
+ * Valget mellem privat og erhverv.
+ *
+ * Gemmes i en cookie frem for localStorage, fordi serveren skal kunne læse
+ * det. Forsiden har helt forskelligt indhold for de to, og med localStorage
+ * ville serveren altid rendere privat-udgaven — en erhvervsbesøgende ville
+ * se den forkerte forside blinke forbi inden hydreringen nåede at rette den.
+ *
+ * `initial` kommer fra layout'et, som læser cookien server-side. Dermed er
+ * server og klient enige fra første render, og der er ingen hydreringsfejl.
+ */
+export function AudienceProvider({
+  initial,
+  children,
+}: {
+  initial: Audience;
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  const [audience, setAudienceState] = useState<Audience>(initial);
 
-  const setAudience = useCallback((next: Audience) => {
-    writeAudience(next);
-  }, []);
+  const setAudience = useCallback(
+    (next: Audience) => {
+      setAudienceState(next);
+
+      // Et år, så valget huskes. Lax er nok: cookien styrer kun hvilket
+      // indhold der vises, den giver ingen adgang til noget.
+      document.cookie = `${AUDIENCE_COOKIE}=${next}; path=/; max-age=31536000; SameSite=Lax`;
+
+      // Server-komponenterne har allerede renderet med den gamle værdi.
+      // Uden refresh ville kun de klientkomponenter der bruger hook'en
+      // skifte, mens siden omkring dem blev stående.
+      router.refresh();
+    },
+    [router],
+  );
 
   const value = useMemo<AudienceContextValue>(
     () => ({

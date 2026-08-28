@@ -14,10 +14,10 @@ export default function Kontakt() {
       <Navbar />
       <main className="flex-1 bg-mist">
         <div className="mx-auto max-w-lg px-6 py-20">
-          <h1 className="text-center font-display text-[34px] font-normal text-navy">
+          <h1 className="text-center font-display text-[36px] font-normal text-navy">
             Kontakt
           </h1>
-          <p className="mt-2 text-center text-[13px] text-body">
+          <p className="mt-2 text-center text-[15px] text-body">
             Vi svarer hurtigt &mdash; typisk inden for en hverdag.
           </p>
 

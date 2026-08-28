@@ -1,0 +1,10 @@
+-- Tom migration.
+--
+-- Filen blev oprettet af `supabase migration new`, men indholdet nåede
+-- aldrig at blive skrevet før den blev pushet. Versionen står derfor i
+-- migrationshistorikken uden at have gjort noget.
+--
+-- Den kan ikke slettes: mangler filen lokalt, afviser CLI'en at pushe med
+-- "Remote migration versions not found in local migrations directory".
+--
+-- Den rigtige DROP ligger i 20260824120000.

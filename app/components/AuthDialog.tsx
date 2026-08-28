@@ -6,14 +6,17 @@ import { useRef, useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
 
+import { useAudience } from "./AudienceProvider";
+
 type Mode = "login" | "signup";
 
 const fieldClass =
-  "h-11 w-full rounded-sm border border-line px-3.5 text-[13px] text-navy placeholder:text-muted focus:border-orange focus:outline-none focus:ring-1 focus:ring-orange disabled:opacity-60";
+  "h-11 w-full rounded-sm border border-line px-5 text-[15px] text-navy placeholder:text-muted focus:border-orange focus:outline-none focus:ring-1 focus:ring-orange disabled:opacity-60";
 
-const labelClass = "block text-[12px] font-semibold text-navy";
+const labelClass = "block text-[14px] font-semibold text-navy";
 
 export function AuthDialog() {
+  const { isErhverv } = useAudience();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const router = useRouter();
 
@@ -31,6 +34,19 @@ export function AuthDialog() {
 
   function close() {
     dialogRef.current?.close();
+  }
+
+  /**
+   * Sender brugeren til sin profil efter login eller oprettelse.
+   *
+   * refresh() efter push() er nødvendig: Navbar og /min-side er server-
+   * komponenter der læser sessionen fra cookies. Uden refresh genbruger
+   * Next den cachede server-render fra før login, så siden ville vise
+   * "Log ind" og redirecte tilbage til forsiden.
+   */
+  function redirectToProfile() {
+    router.push("/min-side");
+    router.refresh();
   }
 
   function reset(nextMode: Mode) {
@@ -61,7 +77,7 @@ export function AuthDialog() {
           return;
         }
         close();
-        router.refresh();
+        redirectToProfile();
         return;
       }
 
@@ -69,9 +85,19 @@ export function AuthDialog() {
         email,
         password,
         options: {
-          // Kun visningsnavn. Brug aldrig user_metadata til autorisation —
-          // brugeren kan selv redigere det.
-          data: { full_name: String(form.get("navn")) },
+          // Metadata bliver til raw_user_meta_data, som triggeren kopierer
+          // over i profiles. Brugeren kan selv redigere de her felter, så de
+          // må aldrig bruges til autorisation — kun som stamdata.
+          data: {
+            full_name: String(form.get("navn")),
+            account_type: isErhverv ? "business" : "private",
+            ...(isErhverv
+              ? {
+                  company_name: String(form.get("virksomhed") ?? ""),
+                  cvr_number: String(form.get("cvr") ?? ""),
+                }
+              : {}),
+          },
         },
       });
 
@@ -82,7 +108,7 @@ export function AuthDialog() {
 
       if (data.session) {
         close();
-        router.refresh();
+        redirectToProfile();
         return;
       }
 
@@ -100,7 +126,7 @@ export function AuthDialog() {
       <button
         type="button"
         onClick={open}
-        className="rounded-sm border border-white/35 px-3.5 py-1.5 text-[13px] transition-colors hover:border-white hover:bg-white/10"
+        className="rounded-sm border border-white/35 px-5 py-1.5 text-[15px] transition-colors hover:border-white hover:bg-white/10"
       >
         Log ind
       </button>
@@ -125,24 +151,24 @@ export function AuthDialog() {
 
           {/* Brand */}
           <div className="text-center">
-            <p className="font-display text-[16px] font-bold tracking-tight text-navy">
+            <p className="font-display text-[18px] font-bold tracking-tight text-navy">
               Ejendelsregisteret
             </p>
-            <p className="mt-1 text-[8px] font-semibold uppercase tracking-[0.18em] text-orange">
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-orange">
               Dækker alt &ndash; over alt
             </p>
           </div>
 
           <h2
             id="auth-dialog-title"
-            className="mt-7 text-center font-display text-[26px] font-normal text-navy"
+            className="mt-7 text-center font-display text-[28px] font-normal text-navy"
           >
             {isLogin ? "Log ind" : "Opret konto"}
           </h2>
 
           {!isLogin && (
-            <p className="mt-1.5 text-center text-[12px] text-muted">
-              99 kr. oprettelse &middot; 29 kr./md. &middot; 25 ejendele inkl.
+            <p className="mt-1.5 text-center text-[14px] text-muted">
+              99 kr. oprettelse &middot; 29 kr./md. &middot; 5 ejendele inkl.
             </p>
           )}
 
@@ -163,6 +189,44 @@ export function AuthDialog() {
                   className={`mt-2 ${fieldClass}`}
                 />
               </div>
+            )}
+
+            {!isLogin && isErhverv && (
+              <>
+                <div>
+                  <label htmlFor="auth-company" className={labelClass}>
+                    Virksomhed
+                  </label>
+                  <input
+                    id="auth-company"
+                    name="virksomhed"
+                    type="text"
+                    autoComplete="organization"
+                    required
+                    disabled={pending}
+                    placeholder="Virksomhedens navn"
+                    className={`mt-2 ${fieldClass}`}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="auth-cvr" className={labelClass}>
+                    CVR-nummer
+                  </label>
+                  <input
+                    id="auth-cvr"
+                    name="cvr"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="\d{8}"
+                    title="CVR-nummer er 8 cifre"
+                    required
+                    disabled={pending}
+                    placeholder="12345678"
+                    className={`mt-2 ${fieldClass}`}
+                  />
+                </div>
+              </>
             )}
 
             <div>
@@ -202,7 +266,7 @@ export function AuthDialog() {
               <div className="text-right">
                 <a
                   href="#"
-                  className="text-[11px] font-medium text-orange hover:text-orange-dark"
+                  className="text-[13px] font-medium text-orange hover:text-orange-dark"
                 >
                   Glemt adgangskode?
                 </a>
@@ -210,13 +274,13 @@ export function AuthDialog() {
             )}
 
             {error && (
-              <p role="alert" className="text-[12px] leading-snug text-red-600">
+              <p role="alert" className="text-[14px] leading-snug text-red-600">
                 {error}
               </p>
             )}
 
             {notice && (
-              <p role="status" className="text-[12px] leading-snug text-navy">
+              <p role="status" className="text-[14px] leading-snug text-navy">
                 {notice}
               </p>
             )}
@@ -224,7 +288,7 @@ export function AuthDialog() {
             <button
               type="submit"
               disabled={pending}
-              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-sm bg-orange text-[14px] font-bold text-white transition-colors hover:bg-orange-dark disabled:opacity-70"
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-sm bg-orange text-[16px] font-bold text-white transition-colors hover:bg-orange-dark disabled:opacity-70"
             >
               {pending ? (
                 "Vent venligst…"
@@ -239,7 +303,7 @@ export function AuthDialog() {
             </button>
           </form>
 
-          <p className="mt-5 text-center text-[12px] text-muted">
+          <p className="mt-5 text-center text-[14px] text-muted">
             {isLogin ? "Har du ikke en konto? " : "Har du allerede en konto? "}
             <button
               type="button"
