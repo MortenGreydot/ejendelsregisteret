@@ -41,7 +41,8 @@ type Match = {
 const dk = (iso: string | null) =>
   iso ? new Date(iso).toLocaleDateString("da-DK", { dateStyle: "long" }) : "";
 
-export default async function Soeg({ searchParams }: PageProps<"/serienummer">) {
+/** Søg på serienummer */
+export default async function SerialLookupPage({ searchParams }: PageProps<"/serienummer">) {
   const params = await searchParams;
   const query = typeof params.q === "string" ? params.q.trim() : "";
 

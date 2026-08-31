@@ -1,0 +1,174 @@
+/**
+ * Afsendelse af mails via Resend.
+ *
+ * HTTP frem for SMTP: edge functions kan godt tale TCP, men Simplys relay
+ * afviser forbindelser der ikke kommer fra deres egne webservere. Resend
+ * tager imod et almindeligt fetch-kald, og så slipper vi for STARTTLS,
+ * base64-login og fortolkning af svarkoder.
+ *
+ * Identifikatorer er på engelsk, teksterne til modtageren på dansk.
+ */
+
+const FROM = "Ejendelsregisteret <info@ejendelsregisteret.dk>";
+
+const NAVY = "#1c2d4f";
+const ORANGE = "#d2802e";
+const BODY = "#4f5763";
+const MUTED = "#8b93a1";
+const LINE = "#e3e6ea";
+const MIST = "#eff1f4";
+
+/** Abhaya Libre findes kun i få mailklienter — Georgia bærer resten. */
+const FF =
+  "font-family:'Abhaya Libre',Georgia,'Times New Roman',serif;";
+
+/** Knap. `label` er knapteksten. */
+export type Button = { label: string; url: string };
+
+/** Indholdet i én mail. Feltnavnene på dansk står i kommentarerne. */
+export type EmailContent = {
+  /** overskrift — vises som h1 øverst i mailen */
+  heading: string;
+  /** præambel — forhåndsvisningen i indbakken, skjult i selve mailen */
+  preheader: string;
+  /** afsnit — brødteksten, ét <p> pr. element */
+  paragraphs: string[];
+  /** knap — den orange handlingsknap */
+  button?: Button;
+  /** fodnote — den lille grå tekst under stregen */
+  footnote?: string;
+};
+
+/**
+ * Bygger en komplet mail-HTML. (skabelon)
+ *
+ * Tabeller og inline styles, fordi Outlook på Windows renderer med Words
+ * motor og hverken kan flexbox eller stylesheets i <head>.
+ */
+function template({
+  heading,
+  preheader,
+  paragraphs,
+  button,
+  footnote,
+}: EmailContent) {
+  const buttonHtml = button
+    ? `<tr><td style="padding:28px 32px 0 32px;">
+         <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+           <tr><td bgcolor="${ORANGE}" style="border-radius:4px; mso-padding-alt:14px 28px;">
+             <a href="${button.url}" target="_blank" style="display:inline-block; padding:14px 28px; ${FF} font-size:15px; font-weight:700; color:#ffffff; text-decoration:none;">${button.label}</a>
+           </td></tr>
+         </table>
+       </td></tr>`
+    : "";
+
+  const paragraphsHtml = paragraphs
+    .map(
+      (text) =>
+        `<tr><td style="padding:16px 32px 0 32px;"><p style="margin:0; ${FF} font-size:16px; line-height:1.65; color:${BODY};">${text}</p></td></tr>`,
+    )
+    .join("");
+
+  return `<!DOCTYPE html>
+<html lang="da"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>${heading}</title>
+<style>
+  @media only screen and (max-width:600px) {
+    .wrap { width:100% !important; }
+    .px { padding-left:20px !important; padding-right:20px !important; }
+  }
+</style>
+</head>
+<body style="margin:0; padding:0; background-color:${MIST};">
+  <!-- Preheader: vises i indbakkens forhåndsvisning, men ikke i mailen. -->
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0;">${preheader}</div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${MIST};">
+    <tr><td align="center" style="padding:32px 12px;">
+      <table role="presentation" class="wrap" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px; background-color:#ffffff; border:1px solid ${LINE}; border-radius:6px;">
+
+        <tr><td class="px" style="padding:28px 32px 0 32px;">
+          <div style="${FF} font-size:17px; font-weight:700; color:${NAVY};">Ejendelsregisteret</div>
+          <div style="${FF} font-size:10px; font-weight:700; letter-spacing:1.6px; text-transform:uppercase; color:${ORANGE}; padding-top:3px;">D&aelig;kker alt &ndash; over alt</div>
+        </td></tr>
+
+        <tr><td class="px" style="padding:24px 32px 0 32px;">
+          <h1 style="margin:0; ${FF} font-size:24px; line-height:1.25; font-weight:700; color:${NAVY};">${heading}</h1>
+        </td></tr>
+
+        ${paragraphsHtml}
+        ${buttonHtml}
+
+        ${
+          footnote
+            ? `<tr><td class="px" style="padding:28px 32px 0 32px;">
+                 <div style="height:1px; background:${LINE}; font-size:1px; line-height:1px;">&nbsp;</div>
+               </td></tr>
+               <tr><td class="px" style="padding:16px 32px 0 32px;">
+                 <p style="margin:0; ${FF} font-size:13px; line-height:1.6; color:${MUTED};">${footnote}</p>
+               </td></tr>`
+            : ""
+        }
+
+        <tr><td class="px" style="padding:28px 32px 28px 32px;">
+          <p style="margin:0; ${FF} font-size:12px; line-height:1.6; color:${MUTED};">
+            Ejendelsregisteret &middot; ejendelsregisteret.dk<br>
+            Du modtager denne mail fordi du har en konto hos os.
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+}
+
+/**
+ * Sender en mail. Kaster aldrig.
+ *
+ * Kaldes fra Stripe-webhooken, og dér må en mailfejl ikke vælte behandlingen:
+ * svarer vi 500, prøver Stripe eventet igen, og så ville betalinger blive
+ * bogført to gange for at få en mail afsted. Mailen er det mindst kritiske
+ * i kæden og skal fejle stille.
+ *
+ * `to` er modtageren, `subject` er emnet.
+ */
+export async function sendEmail(
+  options: EmailContent & { to: string; subject: string },
+): Promise<{ ok: boolean; error?: string }> {
+  const key = Deno.env.get("RESEND_API_KEY");
+  if (!key) {
+    console.error("sendEmail: RESEND_API_KEY mangler");
+    return { ok: false, error: "RESEND_API_KEY mangler" };
+  }
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: FROM,
+        to: [options.to],
+        subject: options.subject,
+        html: template(options),
+      }),
+    });
+
+    if (!res.ok) {
+      const detail = await res.text();
+      console.error(`sendEmail: ${res.status} ${detail}`);
+      return { ok: false, error: detail };
+    }
+    return { ok: true };
+  } catch (caught) {
+    const message = caught instanceof Error ? caught.message : String(caught);
+    console.error("sendEmail:", message);
+    return { ok: false, error: message };
+  }
+}

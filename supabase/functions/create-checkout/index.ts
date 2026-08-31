@@ -94,6 +94,13 @@ export default {
         { price: subscriptionPriceId(planId), quantity: 1 },
         { price: setupPriceId(planId), quantity: 1 },
       ],
+      // Viser feltet "Tilføj kampagnekode" i Checkout. Hører til på selve
+      // sessionen — subscription_data kender ikke parameteren og afviser den.
+      //
+      // Bemærk at allow_promotion_codes og discounts udelukker hinanden:
+      // skal en rabat gives automatisk (fx efter verificeret studiekort),
+      // sendes den som `discounts` i stedet, og så skal denne linje væk.
+      allow_promotion_codes: true,
       // Findes på både session og subscription, så webhooken kan slå
       // brugeren op uanset hvilket event der lander først.
       metadata: { user_id: userId, plan_id: planId },

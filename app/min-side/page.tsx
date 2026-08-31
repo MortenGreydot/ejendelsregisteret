@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PLANS } from "@/lib/plans";
 import { Navbar } from "../components/Navbar";
 import { ItemWizard } from "../components/minside/ItemWizard";
-import { MinSideTabs } from "../components/minside/MinSideTabs";
+import { AccountTabs } from "../components/minside/AccountTabs";
 import {
   PaymentNotice,
   type SubscriptionStatus,
@@ -36,7 +36,8 @@ const dkMonth = (iso: string | null) =>
       })
     : null;
 
-export default async function MinSide({ searchParams }: PageProps<"/min-side">) {
+/** Min side */
+export default async function MyAccountPage({ searchParams }: PageProps<"/min-side">) {
   const params = await searchParams;
   // Sat af Stripes success_url. Findes kun i den ene viderestilling efter
   // en gennemført betaling, så guiden vises én gang og ikke ved hvert besøg.
@@ -176,7 +177,7 @@ export default async function MinSide({ searchParams }: PageProps<"/min-side">) 
             createdAt={dkMonth(profile?.created_at ?? null)}
           />
 
-          <MinSideTabs
+          <AccountTabs
             items={items}
             userId={userId}
             categories={categories ?? []}

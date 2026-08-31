@@ -3,6 +3,12 @@ import type { SupabaseClient } from "npm:@supabase/supabase-js";
 import type Stripe from "npm:stripe";
 
 import {
+  membershipActive,
+  paymentFailed,
+  receipt,
+} from "../_shared/mails.ts";
+import { getRecipient } from "../_shared/recipient.ts";
+import {
   mapStatus,
   setupPriceIds,
   getStripe,
@@ -103,6 +109,9 @@ async function onCheckoutCompleted(
       updated_at: new Date().toISOString(),
     })
     .eq("user_id", userId);
+
+  const recipient = await getRecipient(admin, userId);
+  if (recipient) await membershipActive(recipient.email, recipient.name);
 }
 
 /** Statusskift: forny, opsig, betalingsproblemer. */
@@ -160,6 +169,16 @@ async function onInvoicePaid(admin: Admin, invoice: Stripe.Invoice) {
   }
 
   await recordBillingUsage(admin, invoice, sub.user_id);
+
+  const recipient = await getRecipient(admin, sub.user_id);
+  if (recipient) {
+    await receipt(
+      recipient.email,
+      toKroner(invoice.amount_paid),
+      invoice.number,
+      invoice.billing_reason === "subscription_create",
+    );
+  }
 }
 
 /**
@@ -250,6 +269,9 @@ async function onInvoiceFailed(admin: Admin, invoice: Stripe.Invoice) {
   // blev der aldrig skrevet andet end `paid`. Så kunne man ikke se forskel
   // på "har aldrig betalt" og "betalingen mislykkedes".
   if (!sub) return;
+
+  const recipient = await getRecipient(admin, sub.user_id);
+  if (recipient) await paymentFailed(recipient.email);
 
   await admin.from("payments").insert({
     user_id: sub.user_id,

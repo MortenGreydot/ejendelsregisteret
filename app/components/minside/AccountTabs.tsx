@@ -7,7 +7,8 @@ import { ItemList, type Item } from "./ItemList";
 
 export type Tab = "ejendele" | "profil";
 
-export function MinSideTabs({
+/** Fanerne på Min side: Ejendele og Profil. */
+export function AccountTabs({
   items,
   userId,
   categories,

@@ -1,6 +1,8 @@
 import { withSupabase } from "npm:@supabase/server";
 
 import { getStripe } from "../_shared/config.ts";
+import { accountDeleted } from "../_shared/mails.ts";
+import { getRecipient } from "../_shared/recipient.ts";
 
 /**
  * Sletter brugerens konto og alt hvad der hører til.
@@ -97,11 +99,19 @@ export default {
         }
       }
 
-      // 4. Slet brugeren — resten følger med via cascade
+      // 4. Slet brugeren — resten følger med via cascade.
+      // Adressen skal hentes inden: bagefter findes brugeren ikke længere,
+      // og så er der ingen at sende bekræftelsen til.
+      const recipient = await getRecipient(admin, userId);
+
       const { error: deleteError } = await admin.auth.admin.deleteUser(userId);
       if (deleteError) {
         return Response.json({ error: deleteError.message }, { status: 500 });
       }
+
+      // 5. Bekræft sletningen. Sendes til sidst, så mailen kun går ud hvis
+      // kontoen faktisk blev slettet.
+      if (recipient) await accountDeleted(recipient.email);
 
       return Response.json({
         deleted: true,

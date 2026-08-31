@@ -8,7 +8,8 @@ export const metadata: Metadata = {
   description: "Skriv til os. Vi svarer typisk inden for en hverdag.",
 };
 
-export default function Kontakt() {
+/** Kontakt */
+export default function ContactPage() {
   return (
     <>
       <Navbar />

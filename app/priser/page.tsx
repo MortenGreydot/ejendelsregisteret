@@ -13,7 +13,8 @@ export const metadata: Metadata = {
     "Medlemskab til privat og erhverv. 5 ejendele inkluderet, ekstra ejendele 2 kr./stk./md.",
 };
 
-export default async function Priser() {
+/** Priser */
+export default async function PricingPage() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
 

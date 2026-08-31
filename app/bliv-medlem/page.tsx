@@ -11,7 +11,8 @@ export const metadata: Metadata = {
     "Opret dit medlemskab: vælg abonnement, opret konto og gennemfør betalingen.",
 };
 
-export default async function BlivMedlem({
+/** Bliv medlem */
+export default async function BecomeMemberPage({
   searchParams,
 }: PageProps<"/bliv-medlem">) {
   const params = await searchParams;
