@@ -429,3 +429,8 @@ verify_jwt = false
 # Kaldes af databasetriggeren og af cron via pg_net — ingen Supabase-JWT.
 # X-Cron-Secret i selve funktionen er adgangskontrollen.
 verify_jwt = false
+
+[functions.send-contact]
+# Kontaktformularen er åben for besøgende uden konto. Misbrug holdes nede
+# af honeypot, længdegrænser og hastighedsloft i selve funktionen.
+verify_jwt = false

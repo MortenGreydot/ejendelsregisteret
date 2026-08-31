@@ -1,13 +1,66 @@
 "use client";
 
 import { FileText, ImageIcon, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /** Se MediaGrid for hvorfor HEIC bevidst ikke står i `accept`. */
 const heicMessage = (formats: string) =>
   `Vi tager kun imod ${formats}. HEIC er iPhones eget format og kan ikke vises i de fleste browsere — vælg billedet via Fotos-appen frem for Filer, så konverterer iOS det automatisk til JPG.`;
 
 const isHeic = (name: string) => /\.hei[cf]$/i.test(name.trim());
+
+
+/** Samme flise som MediaGrid, så oprettelse og redigering ser ens ud. */
+const TILE =
+  "relative size-28 overflow-hidden rounded-sm border border-line bg-mist";
+
+const isImageFile = (name: string) =>
+  /\.(png|jpe?g|webp|gif)$/i.test(name.trim());
+
+/**
+ * Miniature af en fil der endnu ikke er lagt op.
+ *
+ * Filen findes kun i browseren, så der er ingen URL at hente fra. src sættes
+ * derfor direkte på elementet inde i effekten frem for gennem state.
+ *
+ * Grunden er levetiden: en object-URL skal frigives igen, ellers holder
+ * browseren på hele filen indtil siden genindlæses. Bliver URL'en lagt i
+ * state eller useMemo, peger den stadig på en frigivet URL næste gang
+ * effekten kører — og i udvikling kører React netop hver effekt to gange.
+ * Ved at oprette og frigive i samme effekt følges de altid ad.
+ */
+function ImagePreview({ file }: { file: File }) {
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const url = URL.createObjectURL(file);
+    if (imgRef.current) imgRef.current.src = url;
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
+
+  return (
+    // next/image kan ikke bruges her: kilden er en object-URL der først
+    // findes efter mount, og den skal ikke gennem billedoptimeringen.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      ref={imgRef}
+      alt={file.name}
+      className="size-full object-cover"
+    />
+  );
+}
+
+/** Fliser for filer uden miniature — typisk en PDF-kvittering. */
+function DocumentPreview({ file }: { file: File }) {
+  return (
+    <span className="flex size-full flex-col items-center justify-center gap-1.5 px-2 text-center">
+      <FileText className="size-6 shrink-0 text-muted" strokeWidth={1.5} />
+      <span className="line-clamp-2 text-[11px] leading-tight break-all text-body">
+        {file.name}
+      </span>
+    </span>
+  );
+}
 
 export function FileDropzone({
   id,
@@ -113,24 +166,27 @@ export function FileDropzone({
       {error && <p className="mt-2 text-[13px] text-red-600">{error}</p>}
 
       {files.length > 0 && (
-        <ul className="mt-2 space-y-1">
+        <ul className="mt-3 flex flex-wrap gap-3">
           {files.map((file, index) => (
             <li
-              key={`${file.name}-${index}`}
-              className="flex items-center gap-2 rounded-sm bg-mist px-3 py-2 text-[13px] text-body"
+              key={`${file.name}-${file.size}-${index}`}
+              title={`${file.name} · ${(file.size / 1024).toFixed(0)} kB`}
+              className={TILE}
             >
-              <span className="min-w-0 flex-1 truncate">{file.name}</span>
-              <span className="shrink-0 text-muted">
-                {(file.size / 1024).toFixed(0)} kB
-              </span>
+              {isImageFile(file.name) ? (
+                <ImagePreview file={file} />
+              ) : (
+                <DocumentPreview file={file} />
+              )}
+
               <button
                 type="button"
                 disabled={disabled}
                 onClick={() => onChange(files.filter((_, i) => i !== index))}
                 aria-label={`Fjern ${file.name}`}
-                className="shrink-0 text-muted hover:text-red-600 disabled:opacity-60"
+                className="absolute top-1 right-1 z-10 flex size-5 items-center justify-center rounded-full bg-white/90 text-navy shadow-sm transition-colors hover:bg-red-600 hover:text-white disabled:opacity-50"
               >
-                <X className="size-3.5" />
+                <X className="size-3" strokeWidth={2.5} />
               </button>
             </li>
           ))}

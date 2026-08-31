@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { invokeFunction } from "@/lib/functions";
+
 import { useAudience } from "./AudienceProvider";
 
 const fieldClass =
@@ -16,25 +18,51 @@ export function ContactForm() {
   const { isErhverv } = useAudience();
   const [pending, setPending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
+    setError(null);
 
     const form = new FormData(event.currentTarget);
 
     // Honeypot: feltet er usynligt for mennesker, så alt indhold er en bot.
     // Vi viser samme kvittering som ved en rigtig indsendelse — ellers kan
-    // botten se at den blev afvist og prøve igen uden fælden.
+    // botten se at den blev afvist og prøve igen uden fælden. Feltet sendes
+    // med til serveren, som fanger det samme; en bot der poster direkte til
+    // funktionen kommer aldrig forbi den her linje.
     if (String(form.get(HONEYPOT_FIELD) ?? "").trim() !== "") {
       setSent(true);
       setPending(false);
       return;
     }
 
-    // TODO: ingen modtager endnu — formen sender ikke videre nogen steder.
-    setSent(true);
+    const { data, error: callError } = await invokeFunction<{ sent?: boolean }>(
+      "send-contact",
+      {
+        name: String(form.get("navn") ?? ""),
+        company: String(form.get("virksomhed") ?? ""),
+        email: String(form.get("email") ?? ""),
+        subject: String(form.get("emne") ?? ""),
+        message: String(form.get("besked") ?? ""),
+        [HONEYPOT_FIELD]: String(form.get(HONEYPOT_FIELD) ?? ""),
+      },
+    );
+
     setPending(false);
+
+    // Kvitteringen vises kun hvis beskeden faktisk kom afsted. Ellers
+    // sidder folk og venter på et svar på noget vi aldrig har modtaget.
+    if (callError || !data?.sent) {
+      setError(
+        callError ??
+          "Beskeden kunne ikke sendes. Prøv igen, eller skriv direkte til kontakt@ejendelsregisteret.dk.",
+      );
+      return;
+    }
+
+    setSent(true);
   }
 
   if (sent) {
@@ -46,7 +74,10 @@ export function ContactForm() {
         </p>
         <button
           type="button"
-          onClick={() => setSent(false)}
+          onClick={() => {
+            setSent(false);
+            setError(null);
+          }}
           className="mt-5 text-[14px] font-medium text-orange hover:text-orange-dark"
         >
           Skriv en ny besked
@@ -155,6 +186,15 @@ export function ContactForm() {
           className={`mt-2 resize-y py-3 ${fieldClass}`}
         />
       </div>
+
+      {error && (
+        <p
+          role="alert"
+          className="rounded-sm border border-red-200 bg-red-50 px-3.5 py-3 text-[14px] text-red-700"
+        >
+          {error}
+        </p>
+      )}
 
       <button
         type="submit"

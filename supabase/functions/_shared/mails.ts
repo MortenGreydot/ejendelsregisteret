@@ -1,4 +1,4 @@
-import { sendEmail } from "./email.ts";
+import { escapeHtml, sendEmail } from "./email.ts";
 import { siteUrl } from "./config.ts";
 
 /**
@@ -197,5 +197,43 @@ export function accountDeleted(to: string) {
       "Af hensyn til bogf&oslash;ringsloven gemmer vi dine betalingsoplysninger i fem &aring;r. De er ikke l&aelig;ngere knyttet til dig som person.",
       "Tak fordi du var med.",
     ],
+  });
+}
+
+/** Kontaktbesked. Sendes til os selv, ikke til en bruger. */
+export function contactMessage(input: {
+  name: string;
+  company: string | null;
+  email: string;
+  subject: string;
+  message: string;
+}) {
+  const to = Deno.env.get("CONTACT_EMAIL") ?? "kontakt@ejendelsregisteret.dk";
+
+  // Linjeskift skal bevares. Mailen er HTML, så \n betyder ingenting —
+  // uden det her ville en besked med afsnit komme frem som én lang blok.
+  const body = escapeHtml(input.message).replace(/\n/g, "<br>");
+
+  const rows = [
+    ["Navn", input.name],
+    ...(input.company ? [["Virksomhed", input.company]] : []),
+    ["E-mail", input.email],
+    ["Emne", input.subject],
+  ]
+    .map(
+      ([label, value]) =>
+        `<strong style="color:#1c2d4f;">${label}:</strong> ${escapeHtml(value)}`,
+    )
+    .join("<br>");
+
+  return sendEmail({
+    to,
+    // Svar-knappen skal ramme den der skrev, ikke vores egen infoadresse.
+    replyTo: input.email,
+    subject: `Kontakt: ${input.subject}`,
+    heading: "Ny besked fra kontaktformularen",
+    preheader: `${input.name} — ${input.subject}`,
+    paragraphs: [rows, body],
+    footnote: "Svar på denne mail for at skrive direkte til afsenderen.",
   });
 }

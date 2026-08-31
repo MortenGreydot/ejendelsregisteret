@@ -137,7 +137,12 @@ function template({
  * `to` er modtageren, `subject` er emnet.
  */
 export async function sendEmail(
-  options: EmailContent & { to: string; subject: string },
+  options: EmailContent & {
+    to: string;
+    subject: string;
+    /** Svaradresse. Bruges til kontaktformularen, så Svar går til afsenderen. */
+    replyTo?: string;
+  },
 ): Promise<{ ok: boolean; error?: string }> {
   const key = Deno.env.get("RESEND_API_KEY");
   if (!key) {
@@ -156,6 +161,7 @@ export async function sendEmail(
         from: FROM,
         to: [options.to],
         subject: options.subject,
+        ...(options.replyTo ? { reply_to: [options.replyTo] } : {}),
         html: template(options),
       }),
     });
@@ -171,4 +177,20 @@ export async function sendEmail(
     console.error("sendEmail:", message);
     return { ok: false, error: message };
   }
+}
+
+/**
+ * Escaper tekst der skal ind i mail-HTML.
+ *
+ * Alt fra kontaktformularen er skrevet af en fremmed. Uden det her kunne en
+ * besked indeholde <a href> eller <img src> og gøre vores egen mail til
+ * bæreren af et link vi ikke har skrevet.
+ */
+export function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
