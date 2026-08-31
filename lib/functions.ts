@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { serverMessage, userMessage } from "@/lib/errors";
 
 /**
  * Kalder en edge function og oversætter fejl til noget en bruger kan læse.
@@ -14,6 +15,10 @@ import { createClient } from "@/lib/supabase/client";
  *   3. 401 betyder "ikke logget ind" og fortjener sin egen besked frem for
  *      en teknisk kode.
  */
+/** Vises når serveren svarer med noget vi ikke kan oversætte. */
+const FALLBACK =
+  "Handlingen kunne ikke gennemføres lige nu. Prøv igen om et øjeblik.";
+
 export async function invokeFunction<T>(
   name: string,
   body: Record<string, unknown> = {},
@@ -33,19 +38,21 @@ export async function invokeFunction<T>(
     if (response && typeof response.json === "function") {
       try {
         const parsed = await response.json();
-        if (parsed?.error) return { data: null, error: parsed.error };
+        if (parsed?.error) {
+          return { data: null, error: serverMessage(parsed.error, FALLBACK) };
+        }
       } catch {
         // Svaret var ikke JSON — fald tilbage på beskeden nedenfor.
       }
     }
 
-    return { data: null, error: error.message };
+    return {
+      data: null,
+      error: serverMessage(error.message, FALLBACK),
+    };
   } catch (caught) {
     // Hertil når vi ved netværksfejl og ved kast inde i klienten. Uden
     // dette ville kaldet fejle uden at nogen opdagede det.
-    return {
-      data: null,
-      error: caught instanceof Error ? caught.message : String(caught),
-    };
+    return { data: null, error: userMessage(caught, FALLBACK) };
   }
 }

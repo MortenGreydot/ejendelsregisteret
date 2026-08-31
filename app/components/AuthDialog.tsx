@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
+import { userMessage } from "@/lib/errors";
 
 import { useAudience } from "./AudienceProvider";
 
@@ -73,7 +74,7 @@ export function AuthDialog() {
           password,
         });
         if (error) {
-          setError(error.message);
+          setError(userMessage(error, "Vi kunne ikke logge dig ind. Prøv igen."));
           return;
         }
         close();
@@ -102,7 +103,9 @@ export function AuthDialog() {
       });
 
       if (error) {
-        setError(error.message);
+        setError(
+          userMessage(error, "Kontoen kunne ikke oprettes. Prøv igen."),
+        );
         return;
       }
 

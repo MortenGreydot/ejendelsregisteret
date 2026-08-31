@@ -22,12 +22,12 @@ import { getRecipient } from "../_shared/recipient.ts";
 export default {
   fetch: withSupabase({ auth: "user" }, async (req, ctx) => {
     if (req.method !== "POST") {
-      return Response.json({ error: "Method not allowed" }, { status: 405 });
+      return Response.json({ error: "Ugyldig forespørgsel" }, { status: 405 });
     }
 
     const userId = ctx.userClaims?.id;
     if (!userId) {
-      return Response.json({ error: "Ikke logget ind" }, { status: 401 });
+      return Response.json({ error: "Du skal være logget ind." }, { status: 401 });
     }
 
     const admin = ctx.supabaseAdmin;
@@ -48,8 +48,14 @@ export default {
           // stoppe sletningen, så vi ikke efterlader en aktiv opkrævning.
           const message = error instanceof Error ? error.message : "";
           if (!message.includes("No such subscription")) {
+            // Sletningen stoppes med vilje: kom vi videre, ville kontoen
+            // være væk mens opkrævningen fortsatte.
+            console.error("delete-account: opsigelse fejlede:", message);
             return Response.json(
-              { error: `Kunne ikke opsige abonnementet: ${message}` },
+              {
+                error:
+                  "Vi kunne ikke opsige dit medlemskab, og derfor er kontoen ikke slettet. Skriv til os, så ordner vi det.",
+              },
               { status: 500 },
             );
           }
@@ -81,7 +87,7 @@ export default {
           .remove(imagePaths);
         if (error) {
           return Response.json(
-            { error: `Kunne ikke slette billeder: ${error.message}` },
+            { error: "Dine billeder kunne ikke slettes, så kontoen er ikke slettet. Prøv igen om lidt." },
             { status: 500 },
           );
         }
@@ -93,7 +99,7 @@ export default {
           .remove(documentPaths);
         if (error) {
           return Response.json(
-            { error: `Kunne ikke slette kvitteringer: ${error.message}` },
+            { error: "Dine kvitteringer kunne ikke slettes, så kontoen er ikke slettet. Prøv igen om lidt." },
             { status: 500 },
           );
         }
@@ -106,7 +112,11 @@ export default {
 
       const { error: deleteError } = await admin.auth.admin.deleteUser(userId);
       if (deleteError) {
-        return Response.json({ error: deleteError.message }, { status: 500 });
+        console.error("delete-account: sletning af bruger fejlede:", deleteError);
+        return Response.json(
+          { error: "Kontoen kunne ikke slettes. Prøv igen om lidt." },
+          { status: 500 },
+        );
       }
 
       // 5. Bekræft sletningen. Sendes til sidst, så mailen kun går ud hvis
@@ -121,7 +131,13 @@ export default {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error("delete-account:", message);
-      return Response.json({ error: message }, { status: 500 });
+      return Response.json(
+        {
+          error:
+            "Kontoen kunne ikke slettes lige nu. Prøv igen om et øjeblik — skriv til os hvis det bliver ved.",
+        },
+        { status: 500 },
+      );
     }
   }),
 };

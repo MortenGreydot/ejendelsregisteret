@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { userMessage } from "@/lib/errors";
 
 export type NewItem = {
   name: string;
@@ -34,7 +35,9 @@ export async function createItem(
     const { data, error } = await supabase.rpc("get_or_create_category", {
       raw_name: input.categoryName,
     });
-    if (error) return { error: error.message };
+    if (error) {
+      return { error: userMessage(error, "Kategorien kunne ikke oprettes.") };
+    }
     categoryId = (data as number | null) ?? null;
   }
 
@@ -51,7 +54,11 @@ export async function createItem(
     .single();
 
   if (itemError || !item) {
-    return { error: itemError?.message ?? "Kunne ikke oprette ejendelen." };
+    return {
+      error: userMessage(itemError, "Ejendelen kunne ikke oprettes. Prøv igen.", {
+        "42501": "Du skal have et aktivt medlemskab for at oprette ejendele. Tegn eller genoptag dit medlemskab under Profil.",
+      }),
+    };
   }
 
   const serials = input.serials.map((s) => s.trim()).filter(Boolean);
@@ -67,7 +74,9 @@ export async function createItem(
     for (const file of files) {
       const path = `${userId}/${item.id}/${Date.now()}-${safeName(file.name)}`;
       const { error } = await supabase.storage.from(bucket).upload(path, file);
-      if (error) throw new Error(error.message);
+      // Den oprindelige fejl kastes videre. new Error(message) smider
+      // koden væk, og uden den kan oversætteren ikke se hvad der gik galt.
+      if (error) throw error;
       await supabase
         .from(table)
         .insert({ item_id: item.id, file_path: path, file_name: file.name });
@@ -82,7 +91,10 @@ export async function createItem(
     // bagefter — bedre end at rulle alt tilbage og miste indtastningen.
     return {
       id: item.id,
-      error: caught instanceof Error ? caught.message : String(caught),
+      error: userMessage(
+        caught,
+        "Filerne kunne ikke lægges op. Du kan tilføje dem under ejendelen.",
+      ),
     };
   }
 

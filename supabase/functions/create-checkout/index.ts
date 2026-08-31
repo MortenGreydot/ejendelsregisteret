@@ -35,14 +35,14 @@ export default {
   fetch: withSupabase({ auth: "user" }, async (req, ctx) => {
     try {
     if (req.method !== "POST") {
-      return Response.json({ error: "Method not allowed" }, { status: 405 });
+      return Response.json({ error: "Ugyldig forespørgsel" }, { status: 405 });
     }
 
     // userClaims er {id, role, email, appMetadata, userMetadata} — ikke
     // JWT'ets rå claims. Bruger-id'et hedder `id`, ikke `sub`.
     const userId = ctx.userClaims?.id;
     if (!userId) {
-      return Response.json({ error: "Ikke logget ind" }, { status: 401 });
+      return Response.json({ error: "Du skal være logget ind." }, { status: 401 });
     }
 
     let planId: unknown;
@@ -50,11 +50,17 @@ export default {
     try {
       ({ planId, cancelTo } = await req.json());
     } catch {
-      return Response.json({ error: "Ugyldig JSON" }, { status: 400 });
+      return Response.json(
+        { error: "Forespørgslen kunne ikke læses. Genindlæs siden og prøv igen." },
+        { status: 400 },
+      );
     }
 
     if (!isPlanId(planId)) {
-      return Response.json({ error: "Ukendt plan" }, { status: 400 });
+      return Response.json(
+        { error: "Vælg om du vil have privat eller erhverv." },
+        { status: 400 },
+      );
     }
 
     // RLS-scopet klient: brugeren kan kun se sin egen række.
@@ -65,12 +71,16 @@ export default {
       .maybeSingle();
 
     if (readError) {
-      return Response.json({ error: readError.message }, { status: 500 });
+      console.error("create-checkout: kunne ikke læse abonnement:", readError);
+      return Response.json(
+        { error: "Vi kunne ikke hente dit medlemskab. Prøv igen om lidt." },
+        { status: 500 },
+      );
     }
 
     if (existing?.status === "active") {
       return Response.json(
-        { error: "Du har allerede et aktivt abonnement" },
+        { error: "Du har allerede et aktivt medlemskab." },
         { status: 409 },
       );
     }
@@ -134,7 +144,11 @@ export default {
       );
 
     if (upsertError) {
-      return Response.json({ error: upsertError.message }, { status: 500 });
+      console.error("create-checkout: kunne ikke gemme abonnement:", upsertError);
+      return Response.json(
+        { error: "Betalingen kunne ikke forberedes. Prøv igen om lidt." },
+        { status: 500 },
+      );
     }
 
     // Kontotypen følger den valgte plan. Upsert frem for update: mangler
@@ -151,9 +165,17 @@ export default {
     } catch (error) {
       // Uden dette bliver enhver kastet fejl til "non-2xx status code"
       // hos klienten, uden nogen antydning af hvad der gik galt.
+      // Beskeden kommer typisk fra Stripe og er engelsk og teknisk. Den
+      // hører hjemme i loggen, ikke i brugerfladen.
       const message = error instanceof Error ? error.message : String(error);
       console.error("create-checkout:", message);
-      return Response.json({ error: message }, { status: 500 });
+      return Response.json(
+        {
+          error:
+            "Betalingen kunne ikke startes lige nu. Prøv igen om et øjeblik — skriv til os hvis det bliver ved.",
+        },
+        { status: 500 },
+      );
     }
   }),
 };

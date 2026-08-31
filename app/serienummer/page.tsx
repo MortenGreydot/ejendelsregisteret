@@ -48,14 +48,24 @@ export default async function SerialLookupPage({ searchParams }: PageProps<"/ser
 
   let match: Match | null = null;
   let imageUrls: string[] = [];
+  // Skal holdes adskilt fra "ingen træffer". Fejler opslaget, må vi ikke
+  // svare "ikke registreret" — så ville en finder få at vide at genstanden
+  // er fri, fordi vores database var nede.
+  let lookupFailed = false;
 
   if (query.length > 0) {
     const supabase = await createClient();
     // lookup_serial er security definer og matcher kun eksakt. Den
     // returnerer intet om ejeren — se migrationen for begrundelsen.
-    const { data } = await supabase.rpc("lookup_serial", {
+    const { data, error } = await supabase.rpc("lookup_serial", {
       raw_serial: query,
     });
+
+    if (error) {
+      console.error("lookup_serial:", error);
+      lookupFailed = true;
+    }
+
     match = (data as Match[] | null)?.[0] ?? null;
 
     // Bucket'en er public, så URL'erne kan bygges uden signering.
@@ -122,7 +132,21 @@ export default async function SerialLookupPage({ searchParams }: PageProps<"/ser
 
           {query.length > 0 && (
             <div className="mt-8">
-              {!match ? (
+              {lookupFailed ? (
+                <div className="rounded-sm border border-line bg-white p-8 text-center">
+                  <TriangleAlert
+                    className="mx-auto size-8 text-orange"
+                    strokeWidth={1.5}
+                  />
+                  <p className="mt-4 font-display text-[21px] text-navy">
+                    Vi kunne ikke slå op lige nu
+                  </p>
+                  <p className="mx-auto mt-2 max-w-sm text-[14.5px] leading-relaxed text-body">
+                    Der er noget galt i vores ende — det betyder ikke at
+                    serienummeret er ukendt. Prøv igen om et øjeblik.
+                  </p>
+                </div>
+              ) : !match ? (
                 <div className="rounded-sm border border-line bg-white p-8 text-center">
                   <SearchX
                     className="mx-auto size-8 text-muted"

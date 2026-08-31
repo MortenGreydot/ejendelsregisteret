@@ -6,6 +6,7 @@ import { useState } from "react";
 import { invokeFunction } from "@/lib/functions";
 import { createClient } from "@/lib/supabase/client";
 import { PLANS, vatLabel, type PlanId } from "@/lib/plans";
+import { userMessage } from "@/lib/errors";
 
 import { useAudience, type Audience } from "../AudienceProvider";
 
@@ -120,7 +121,9 @@ export function SignupFlow({
 
     if (signUpError) {
       setPending(false);
-      setError(signUpError.message);
+      setError(
+        userMessage(signUpError, "Kontoen kunne ikke oprettes. Prøv igen."),
+      );
       return;
     }
 

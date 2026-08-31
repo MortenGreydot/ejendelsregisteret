@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
+import { userMessage } from "@/lib/errors";
 
 import { CategoryCombobox, type Category } from "./CategoryCombobox";
 import { FileDropzone } from "./FileDropzone";
@@ -98,7 +99,9 @@ export function AddItemDialog({
           { raw_name: category },
         );
         if (categoryError) {
-          setError(categoryError.message);
+          setError(
+            userMessage(categoryError, "Kategorien kunne ikke oprettes."),
+          );
           return;
         }
         categoryId = (id as number | null) ?? null;
@@ -117,7 +120,11 @@ export function AddItemDialog({
         .single();
 
       if (itemError || !item) {
-        setError(itemError?.message ?? "Kunne ikke oprette ejendelen.");
+        setError(
+          userMessage(itemError, "Ejendelen kunne ikke oprettes. Prøv igen.", {
+            "42501": "Du skal have et aktivt medlemskab for at oprette ejendele. Tegn eller genoptag dit medlemskab under Profil.",
+          }),
+        );
         return;
       }
 
@@ -140,7 +147,7 @@ export function AddItemDialog({
           const { error: uploadError } = await supabase.storage
             .from(bucket)
             .upload(path, file);
-          if (uploadError) throw new Error(uploadError.message);
+          if (uploadError) throw uploadError;
           await supabase
             .from(table)
             .insert({ item_id: item.id, file_path: path, file_name: file.name });
@@ -153,7 +160,12 @@ export function AddItemDialog({
       dialogRef.current?.close();
       router.refresh();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : String(caught));
+      setError(
+        userMessage(
+          caught,
+          "Ejendelen blev oprettet, men filerne kunne ikke lægges op. Du kan tilføje dem under ejendelen.",
+        ),
+      );
     } finally {
       savingRef.current = false;
       setPending(false);

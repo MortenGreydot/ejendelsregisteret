@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
+import { userMessage } from "@/lib/errors";
 
 const MAX_IMAGES = 6;
 const MAX_DOCUMENTS = 4;
@@ -140,7 +141,11 @@ export function MediaGrid({
       .eq("file_path", path);
 
     if (rowError) {
-      setError(rowError.message);
+      setError(
+        userMessage(rowError, "Filen kunne ikke slettes.", {
+          "42501": "Du kan kun slette filer på dine egne ejendele.",
+        }),
+      );
       setBusy(false);
       return;
     }
@@ -184,7 +189,12 @@ export function MediaGrid({
           .from(bucket)
           .upload(path, file);
         if (uploadError) {
-          setError(uploadError.message);
+          setError(
+            userMessage(
+              uploadError,
+              `"${file.name}" kunne ikke lægges op. Prøv igen.`,
+            ),
+          );
           continue;
         }
         await supabase

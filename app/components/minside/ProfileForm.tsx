@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
+import { userMessage } from "@/lib/errors";
 
 const fieldClass =
   "mt-2 h-11 w-full rounded-sm border border-line bg-white px-5 text-[15px] text-navy placeholder:text-muted focus:border-orange focus:outline-none focus:ring-1 focus:ring-orange disabled:opacity-60";
@@ -47,7 +48,11 @@ export function ProfileForm({
 
     setPending(false);
     if (updateError) {
-      setError(updateError.message);
+      setError(
+        userMessage(updateError, "Dine oplysninger kunne ikke gemmes.", {
+          "42501": "Du kan kun ændre din egen profil.",
+        }),
+      );
       return;
     }
     setSaved(true);

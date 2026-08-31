@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
+import { invokeFunction } from "@/lib/functions";
 
 const CONFIRM_WORD = "SLET";
 
@@ -32,29 +33,23 @@ export function DeleteAccount({ itemCount }: { itemCount: number }) {
     setPending(true);
     setError(null);
 
-    const supabase = createClient();
-    const { data, error: invokeError } = await supabase.functions.invoke<{
+    // invokeFunction pakker svaret ud og oversætter fejlen. Tidligere lå den
+    // logik her i en kopi, og den kopi kendte ikke oversættelsen.
+    const { data, error: callError } = await invokeFunction<{
       deleted?: boolean;
-      error?: string;
-    }>("delete-account", { body: {} });
+    }>("delete-account");
 
-    if (invokeError || !data?.deleted) {
-      let message = invokeError?.message ?? "Kunne ikke slette kontoen.";
-      const response = (invokeError as { context?: Response } | null)?.context;
-      if (response && typeof response.json === "function") {
-        try {
-          const body = await response.json();
-          if (body?.error) message = body.error;
-        } catch {
-          // Svaret var ikke JSON — behold den generiske besked.
-        }
-      }
-      setError(data?.error ?? message);
+    if (callError || !data?.deleted) {
+      setError(
+        callError ??
+          "Kontoen kunne ikke slettes. Prøv igen — skriv til os hvis det bliver ved.",
+      );
       setPending(false);
       return;
     }
 
     // Sessionen peger nu på en bruger der ikke findes.
+    const supabase = createClient();
     await supabase.auth.signOut();
     router.replace("/");
     router.refresh();

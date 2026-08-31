@@ -21,25 +21,28 @@ function isAction(value: unknown): value is Action {
 export default {
   fetch: withSupabase({ auth: "user" }, async (req, ctx) => {
     if (req.method !== "POST") {
-      return Response.json({ error: "Method not allowed" }, { status: 405 });
+      return Response.json({ error: "Ugyldig forespørgsel" }, { status: 405 });
     }
 
     // userClaims er {id, role, email, appMetadata, userMetadata} — ikke
     // JWT'ets rå claims. Bruger-id'et hedder `id`, ikke `sub`.
     const userId = ctx.userClaims?.id;
     if (!userId) {
-      return Response.json({ error: "Ikke logget ind" }, { status: 401 });
+      return Response.json({ error: "Du skal være logget ind." }, { status: 401 });
     }
 
     let action: unknown;
     try {
       ({ action } = await req.json());
     } catch {
-      return Response.json({ error: "Ugyldig JSON" }, { status: 400 });
+      return Response.json(
+        { error: "Forespørgslen kunne ikke læses. Genindlæs siden og prøv igen." },
+        { status: 400 },
+      );
     }
 
     if (!isAction(action)) {
-      return Response.json({ error: "Ukendt handling" }, { status: 400 });
+      return Response.json({ error: "Handlingen kunne ikke genkendes." }, { status: 400 });
     }
 
     const { data: sub, error } = await ctx.supabase
@@ -49,12 +52,16 @@ export default {
       .maybeSingle();
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      console.error("manage-subscription: kunne ikke læse abonnement:", error);
+      return Response.json(
+        { error: "Vi kunne ikke hente dit medlemskab. Prøv igen om lidt." },
+        { status: 500 },
+      );
     }
 
     if (!sub) {
       return Response.json(
-        { error: "Intet abonnement fundet" },
+        { error: "Du har ikke et medlemskab endnu." },
         { status: 404 },
       );
     }
@@ -63,7 +70,7 @@ export default {
     if (action === "portal") {
       if (!sub.stripe_customer_id) {
         return Response.json(
-          { error: "Ingen Stripe-kunde endnu" },
+          { error: "Du har ikke betalt endnu, så der er ingen fakturaer at vise." },
           { status: 409 },
         );
       }
@@ -78,7 +85,7 @@ export default {
 
     if (!sub.stripe_subscription_id) {
       return Response.json(
-        { error: "Abonnementet er ikke aktiveret endnu" },
+        { error: "Dit medlemskab er ikke aktiveret endnu. Færdiggør betalingen først." },
         { status: 409 },
       );
     }

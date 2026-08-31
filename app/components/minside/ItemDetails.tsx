@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
+import { userMessage } from "@/lib/errors";
 
 import { CategoryCombobox, type Category } from "./CategoryCombobox";
 import { MediaGrid } from "./MediaGrid";
@@ -68,7 +69,9 @@ export function ItemDetails({
           { raw_name: category },
         );
         if (catError) {
-          setError(catError.message);
+          setError(
+            userMessage(catError, "Kategorien kunne ikke oprettes."),
+          );
           return;
         }
         categoryId = (id as number | null) ?? null;
@@ -86,7 +89,11 @@ export function ItemDetails({
         .eq("id", item.id);
 
       if (updateError) {
-        setError(updateError.message);
+        setError(
+          userMessage(updateError, "Ændringerne kunne ikke gemmes.", {
+            "42501": "Du kan kun redigere dine egne ejendele.",
+          }),
+        );
         return;
       }
 
