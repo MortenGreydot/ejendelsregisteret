@@ -434,3 +434,8 @@ verify_jwt = false
 # Kontaktformularen er åben for besøgende uden konto. Misbrug holdes nede
 # af honeypot, længdegrænser og hastighedsloft i selve funktionen.
 verify_jwt = false
+
+[functions.contact-owner]
+# Åben for finderen, som sjældent har en konto. Beskyttet af honeypot,
+# længdegrænser og hastighedsloft i selve funktionen.
+verify_jwt = false

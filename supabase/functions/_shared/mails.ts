@@ -237,3 +237,108 @@ export function contactMessage(input: {
     footnote: "Svar på denne mail for at skrive direkte til afsenderen.",
   });
 }
+
+/** Sammendrag af en henvendelse fra en finder. */
+export type ContactRequest = {
+  finderName: string;
+  finderEmail: string;
+  finderPhone: string | null;
+  message: string;
+  itemName: string;
+  itemStatus: "registered" | "lost" | "stolen";
+};
+
+/**
+ * Kontakt til ejer. Nogen har skrevet om en af deres ejendele.
+ *
+ * Kontakten er med vilje ensrettet. Det eneste vi lover er at vi ikke
+ * udleverer ejerens oplysninger til finderen — en fremmed skal ikke kunne
+ * åbne en kanal ind til en anden borger uden at vedkommende siger ja.
+ *
+ * Den anden vej er der intet løfte. Ejeren får finderens oplysninger og
+ * kan svare direkte, og gør de det, kender finderen derefter også deres
+ * adresse. Det er ejerens eget valg at føre kontakten videre, og netop
+ * derfor står det i fodnoten at et svar afslører adressen.
+ */
+export function ownerContacted(
+  to: string,
+  ownerName: string | null,
+  request: ContactRequest,
+) {
+  const hilsen = ownerName ? `${escapeHtml(ownerName.split(" ")[0])}, n` : "N";
+  const body = escapeHtml(request.message).replace(/\n/g, "<br>");
+  const item = escapeHtml(request.itemName);
+
+  const indledning =
+    request.itemStatus === "registered"
+      ? `${hilsen}ogen har slået serienummeret på <strong style="color:#1c2d4f;">${item}</strong> op og skrevet til dig gennem Ejendelsregisteret.`
+      : `${hilsen}ogen har slået serienummeret på <strong style="color:#1c2d4f;">${item}</strong> op — den du har meldt ${request.itemStatus === "stolen" ? "stj&aring;let" : "savnet"} — og skrevet til dig gennem Ejendelsregisteret.`;
+
+  const kontakt = [
+    `<strong style="color:#1c2d4f;">E-mail:</strong> <a href="mailto:${escapeHtml(request.finderEmail)}" style="color:#d2802e;">${escapeHtml(request.finderEmail)}</a>`,
+    ...(request.finderPhone
+      ? [`<strong style="color:#1c2d4f;">Telefon:</strong> ${escapeHtml(request.finderPhone)}`]
+      : []),
+  ].join("<br>");
+
+  return sendEmail({
+    to,
+    // Svar går direkte til finderen. Modsat retning findes ikke: finderen
+    // har aldrig set ejerens adresse og kan kun skrive gennem formularen.
+    replyTo: request.finderEmail,
+    subject: `Nogen har skrevet om din ${request.itemName}`,
+    heading: "Der er en henvendelse til dig",
+    preheader: `${request.finderName} har skrevet om din ${request.itemName}.`,
+    paragraphs: [
+      indledning,
+      `<strong style="color:#1c2d4f;">${escapeHtml(request.finderName)} skriver:</strong>`,
+      `<span style="display:block; border-left:3px solid #d2802e; padding-left:14px;">${body}</span>`,
+      `Du kan svare direkte &mdash; tryk Svar p&aring; denne mail, s&aring; g&aring;r den til ${escapeHtml(request.finderName)}. Deres oplysninger:`,
+      kontakt,
+    ],
+    footnote:
+      "Vær opmærksom: vi kan ikke bekræfte hvem afsenderen er. Svarer du direkte, kan de se din mailadresse. Aftal altid en overdragelse et offentligt sted, og send aldrig penge på forskud.",
+  });
+}
+
+/**
+ * Vores egen kopi af henvendelsen.
+ *
+ * Her står finderens oplysninger, så vi kan svare dem direkte når ejeren
+ * skriver tilbage. Uden den kopi ville vi være mellemled uden at kende den
+ * ene part.
+ */
+export function ownerContactCopy(request: ContactRequest & { itemId: string }) {
+  const to = Deno.env.get("CONTACT_EMAIL") ?? "kontakt@ejendelsregisteret.dk";
+
+  const rows = [
+    ["Ejendel", request.itemName],
+    ["Status", request.itemStatus],
+    ["Ejendels-id", request.itemId],
+    ["Fra", request.finderName],
+    ["E-mail", request.finderEmail],
+    ...(request.finderPhone ? [["Telefon", request.finderPhone]] : []),
+  ]
+    .map(
+      ([label, value]) =>
+        `<strong style="color:#1c2d4f;">${label}:</strong> ${escapeHtml(value)}`,
+    )
+    .join("<br>");
+
+  return sendEmail({
+    to,
+    // Svar rammer finderen. Ejeren svarer på sin egen mail, som også
+    // lander her — så begge retninger går gennem den samme indbakke.
+    replyTo: request.finderEmail,
+    subject: `Finder → ejer: ${request.itemName}`,
+    heading: "Kopi: henvendelse sendt til ejeren",
+    preheader: `${request.finderName} om ${request.itemName}`,
+    paragraphs: [
+      "Ejeren har f&aring;et beskeden nedenfor med finderens kontaktoplysninger, s&aring; de kan svare direkte. Denne kopi er til jer, s&aring; I kan f&oslash;lge op.",
+      rows,
+      `<span style="display:block; border-left:3px solid #d2802e; padding-left:14px;">${escapeHtml(request.message).replace(/\n/g, "<br>")}</span>`,
+    ],
+    footnote:
+      "Ejeren kan svare finderen direkte. Denne kopi er jeres spor på henvendelsen — svar på den for selv at skrive til finderen.",
+  });
+}

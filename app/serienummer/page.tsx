@@ -5,6 +5,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 
 import { Navbar } from "../components/Navbar";
+import { ContactOwner } from "../components/serienummer/ContactOwner";
 
 export const metadata: Metadata = {
   title: "Serienummer — Ejendelsregisteret",
@@ -19,7 +20,7 @@ const USES = [
   },
   {
     title: "Hvis du har fundet noget",
-    body: "Står nummeret registreret, kan ejeren kontaktes gennem os — uden at nogen af jer får hinandens oplysninger.",
+    body: "Står nummeret registreret, kan du skrive til ejeren gennem os. Du får ikke deres oplysninger, men de kan svare dig direkte.",
   },
   {
     title: "Hvis du er politi eller forhandler",
@@ -269,13 +270,20 @@ export default async function SerialLookupPage({ searchParams }: PageProps<"/ser
                     )}
                   </dl>
 
+                  <ContactOwner
+                    itemId={match.item_id}
+                    itemName={match.name}
+                    status={match.status}
+                  />
+
                   <p className="border-t border-line bg-mist px-6 py-4 text-[13px] leading-relaxed text-muted">
                     Sammenlign oplysningerne med den genstand du har.
                     Stemmer de ikke, er det ikke den samme ejendel.
                     <br />
                     Vi viser hverken ejerens navn, kontaktoplysninger eller
-                    kvitteringer — kontakt til ejeren sker gennem
-                    Ejendelsregisteret.
+                    kvitteringer. Du kan kun skrive til dem gennem
+                    Ejendelsregisteret — omvendt kan de svare dig direkte,
+                    hvis de vil.
                   </p>
                 </div>
               )}
