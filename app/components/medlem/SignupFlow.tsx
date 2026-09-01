@@ -463,7 +463,7 @@ export function SignupFlow({
               Bekræft din e-mail
             </h1>
             <p className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-body">
-              Din konto er oprettet. Vi har sendt dig en mail med et link — åbn
+              Din konto er oprettet. Vi har sendt dig en mail med et link. Åbn
               det for at aktivere kontoen.
             </p>
             <p className="mx-auto mt-3 max-w-sm text-[14px] text-muted">

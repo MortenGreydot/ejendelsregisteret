@@ -6,7 +6,7 @@ import { Navbar } from "../components/Navbar";
 import { SignupFlow } from "../components/medlem/SignupFlow";
 
 export const metadata: Metadata = {
-  title: "Bliv medlem — Ejendelsregisteret",
+  title: "Bliv medlem | Ejendelsregisteret",
   description:
     "Opret dit medlemskab: vælg abonnement, opret konto og gennemfør betalingen.",
 };

@@ -1,6 +1,13 @@
 @import "tailwindcss";
 
 @theme {
+  /*
+    Grænsen mellem den almindelige dialog og den trinvise guide.
+    Under 900px (telefon og lille tablet) er ét spørgsmål ad gangen
+    nemmere at overskue end en lang formular.
+  */
+  --breakpoint-compact: 900px;
+
   /* Brand */
   --color-navy: #1c2d4f;
 

@@ -66,7 +66,7 @@ export function PlanPanel({
             </p>
           </div>
           <p className="shrink-0 text-[26px] font-bold text-navy">
-            {monthlyPrice?.toLocaleString("da-DK") ?? "—"} kr.
+            {monthlyPrice?.toLocaleString("da-DK") ?? "0"} kr.
             <span className="text-[13px] font-normal text-muted">/md.</span>
           </p>
         </div>
@@ -74,7 +74,7 @@ export function PlanPanel({
         <p className="mt-5 border-t border-line pt-4 text-[14px] text-muted">
           Næste betaling:{" "}
           <strong className="font-semibold text-navy">
-            {nextPayment ?? "—"}
+            {nextPayment ?? "Ingen planlagt"}
           </strong>
         </p>
       </div>

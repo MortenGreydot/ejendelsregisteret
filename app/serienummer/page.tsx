@@ -7,7 +7,7 @@ import { Navbar } from "../components/Navbar";
 import { MatchCard, type Match } from "../components/serienummer/MatchCard";
 
 export const metadata: Metadata = {
-  title: "Serienummer — Ejendelsregisteret",
+  title: "Serienummer | Ejendelsregisteret",
   description:
     "Slå et serienummer op og se om genstanden er registreret, savnet eller meldt stjålet. Brug det inden du køber brugt, eller hvis du har fundet noget.",
 };
@@ -107,8 +107,8 @@ export default async function SerialLookupPage({
 
           <p className="mt-3 text-[13px] text-muted">
             Bindestreger, mellemrum og store/små bogstaver er uden betydning.
-            Nummeret skal derimod være fuldstændigt — der søges ikke på dele af
-            et serienummer.
+            Nummeret skal derimod være fuldstændigt. Der søges ikke på dele
+            af et serienummer.
           </p>
 
           {query.length === 0 && (
@@ -138,7 +138,7 @@ export default async function SerialLookupPage({
                     Vi kunne ikke slå op lige nu
                   </p>
                   <p className="mx-auto mt-2 max-w-sm text-[14.5px] leading-relaxed text-body">
-                    Der er noget galt i vores ende — det betyder ikke at
+                    Der er noget galt i vores ende. Det betyder ikke at
                     serienummeret er ukendt. Prøv igen om et øjeblik.
                   </p>
                 </div>
@@ -154,7 +154,7 @@ export default async function SerialLookupPage({
                   <p className="mx-auto mt-2 max-w-sm text-[14.5px] leading-relaxed text-body">
                     Der er ingen ejendel registreret med serienummeret{" "}
                     <span className="font-mono text-navy">{query}</span>.
-                    Kontrollér at nummeret er skrevet helt korrekt — også de
+                    Kontrollér at nummeret er skrevet helt korrekt, også de
                     sidste cifre.
                   </p>
                 </div>
@@ -172,7 +172,7 @@ export default async function SerialLookupPage({
                       </span>{" "}
                       er registreret med serienummeret{" "}
                       <span className="font-mono text-navy">{query}</span>.
-                      Serienumre går igen på tværs af mærker og produkter —
+                      Serienumre går igen på tværs af mærker og produkter, så
                       sammenlign oplysningerne nedenfor med det du har i hånden.
                     </p>
                   )}

@@ -134,7 +134,7 @@ export default {
       return Response.json(
         {
           error:
-            "Kontoen kunne ikke slettes lige nu. Prøv igen om et øjeblik — skriv til os hvis det bliver ved.",
+            "Kontoen kunne ikke slettes lige nu. Prøv igen om et øjeblik, og skriv til os hvis det bliver ved.",
         },
         { status: 500 },
       );

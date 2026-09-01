@@ -21,8 +21,8 @@ export function StatCards({
         ? `${planName} · ${monthlyPrice.toLocaleString("da-DK")} kr/md.`
         : "Ingen",
     },
-    { label: "Næste betaling", value: nextPayment ?? "—" },
-    { label: "Oprettet", value: createdAt ?? "—" },
+    { label: "Næste betaling", value: nextPayment ?? "Ingen" },
+    { label: "Oprettet", value: createdAt ?? "Ukendt" },
   ];
 
   return (

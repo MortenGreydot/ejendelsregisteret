@@ -172,7 +172,7 @@ export default {
       return Response.json(
         {
           error:
-            "Betalingen kunne ikke startes lige nu. Prøv igen om et øjeblik — skriv til os hvis det bliver ved.",
+            "Betalingen kunne ikke startes lige nu. Prøv igen om et øjeblik, og skriv til os hvis det bliver ved.",
         },
         { status: 500 },
       );

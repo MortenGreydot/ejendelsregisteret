@@ -9,7 +9,7 @@ export function SectionNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex h-11 items-center gap-8 text-[15px]">
+    <nav className="flex h-11 items-center gap-8 text-[15px] ml-2">
       {SECTIONS.map((item) => {
         const active = isActivePath(pathname, item.href);
 
@@ -20,8 +20,8 @@ export function SectionNav() {
             aria-current={active ? "page" : undefined}
             className={
               active
-                ? "border-b-2 border-orange pb-0.5 text-white"
-                : "pb-0.5 text-white/70 transition-colors hover:text-white"
+                ? "border-b-2 border-orange pb-0.5 text-black"
+                : "pb-0.5 text-black/70 transition-colors hover:text-black"
             }
           >
             {item.label}

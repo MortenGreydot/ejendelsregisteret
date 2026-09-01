@@ -9,14 +9,14 @@ export function SerialSection() {
           <span className="mt-4 block h-0.5 w-12 bg-orange" />
 
           <h2 className="mt-6 font-display text-[42px] leading-[1.15] font-normal text-navy">
-            Alt med serienummer &mdash;
+            Alt med serienummer,
             <br />
             samlet <em className="font-accent text-orange">ét sted</em>
           </h2>
 
           <p className="mt-6 max-w-md text-[16px] leading-[1.75] text-body">
             Telefonen, cyklen i kælderen, boremaskinen, kameraet og uret. Har
-            den et serienummer, hører den til her &mdash; og det tager to
+            den et serienummer, hører den til her, og det tager to
             minutter pr. ting. Sælger du den videre, følger ejerskabet med til
             køberen.
           </p>

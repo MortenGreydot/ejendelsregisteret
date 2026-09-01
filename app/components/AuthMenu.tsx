@@ -44,7 +44,7 @@ export function AuthMenu({ initialSignedIn }: { initialSignedIn: boolean }) {
         className="inline-flex items-center gap-2 rounded-sm border border-white/35 px-5 py-1.5 text-[15px] transition-colors hover:border-white hover:bg-white/10"
       >
         <UserRound className="size-4" strokeWidth={1.75} />
-        Min side
+        <span>Min side</span>
       </Link>
       <SignOutButton variant="navbar" />
     </>

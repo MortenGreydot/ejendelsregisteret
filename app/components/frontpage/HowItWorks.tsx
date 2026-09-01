@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 const steps = [
   {
@@ -7,7 +8,7 @@ const steps = [
   },
   {
     title: "Kun din liste",
-    body: "Ingen andre kan se hvad du ejer. Slår nogen et helt serienummer op, ser de genstanden — aldrig hvem der ejer den.",
+    body: "Ingen andre kan se hvad du ejer. Slår nogen et helt serienummer op, ser de genstanden, aldrig hvem der ejer den.",
   },
   {
     title: "Send videre",
@@ -18,18 +19,18 @@ const steps = [
 export function HowItWorks() {
   return (
     <section id="saadan-virker-det" className="scroll-mt-8 bg-white">
-      <div className="mx-auto max-w-5xl px-6 py-14">
+      <div className="mx-auto max-w-6xl px-6 py-14">
         <div className="flex flex-wrap items-baseline justify-between gap-4">
           <h2 className="font-display text-[26px] font-normal text-navy">
             Sådan virker det
           </h2>
-          <a
-            href="#"
+          <Link
+            href="/guide"
             className="inline-flex items-center gap-1.5 text-[14px] font-medium text-orange transition-colors hover:text-orange-dark"
           >
             Læs den fulde guide
             <ArrowRight className="size-3.5" strokeWidth={2} />
-          </a>
+          </Link>
         </div>
 
         <ol className="mt-8 grid gap-px overflow-hidden rounded-sm bg-line sm:grid-cols-3">

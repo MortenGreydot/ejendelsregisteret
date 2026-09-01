@@ -20,13 +20,13 @@
 const AUTH: Record<string, string> = {
   invalid_credentials: "Forkert e-mail eller adgangskode.",
   email_not_confirmed:
-    "Din e-mail er ikke bekræftet endnu. Tjek din indbakke — også spamfilteret.",
+    "Din e-mail er ikke bekræftet endnu. Tjek din indbakke, også spamfilteret.",
   email_exists:
     "Der findes allerede en konto med den e-mail. Log ind i stedet for at oprette en ny.",
   user_already_exists:
     "Der findes allerede en konto med den e-mail. Log ind i stedet for at oprette en ny.",
   weak_password:
-    "Adgangskoden er for kort. Brug mindst 8 tegn — gerne flere ord i træk.",
+    "Adgangskoden er for kort. Brug mindst 8 tegn, gerne flere ord i træk.",
   validation_failed: "Tjek at e-mailen er skrevet rigtigt.",
   over_request_rate_limit:
     "Der er prøvet for mange gange på kort tid. Vent et minut og prøv igen.",

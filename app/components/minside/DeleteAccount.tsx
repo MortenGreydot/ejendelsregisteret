@@ -42,7 +42,7 @@ export function DeleteAccount({ itemCount }: { itemCount: number }) {
     if (callError || !data?.deleted) {
       setError(
         callError ??
-          "Kontoen kunne ikke slettes. Prøv igen — skriv til os hvis det bliver ved.",
+          "Kontoen kunne ikke slettes. Prøv igen, og skriv til os hvis det bliver ved.",
       );
       setPending(false);
       return;

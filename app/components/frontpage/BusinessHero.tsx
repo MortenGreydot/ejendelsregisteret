@@ -35,7 +35,7 @@ export function BusinessHero() {
 
         <p className="mt-6 max-w-lg text-[16px] leading-[1.75] text-white/80">
           Boremaskiner, kompressorer, lasere og elværktøj. Registrér
-          serienumrene, gem kvitteringerne og tag billederne &mdash; klar til
+          serienumrene, gem kvitteringerne og tag billederne. Klar til
           forsikring, tyveri og transport.
         </p>
 

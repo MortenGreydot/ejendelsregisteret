@@ -3,20 +3,18 @@ import { ArrowRight } from "lucide-react";
 export function LostSomething() {
   return (
     <section className="bg-mist">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-16 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-10 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-xl">
-          <h2 className="font-display text-[30px] font-normal text-navy">
+          <h2 className="font-display text-[30px] font-bold text-navy">
             Mistet noget?
           </h2>
-          <p className="mt-4 text-[15px] leading-[1.8] text-body">
-            Erstatning er ikke det samme som at få tingen tilbage.
+          <p className="mt-3 text-[15px] leading-[1.8] text-navy">
+            Erstatning er ikke det samme som at få tingen tilbage. <br />
             Ejendelsregisteret samarbejder med{" "}
-            <strong className="font-semibold text-navy">
-              Hittegodscentralen.dk
-            </strong>{" "}
-            &mdash; Danmarks nationale hittegodsdatabase. Når du har mistet
-            noget, kan du oprette en efterlysning der, og vi krydstjekker
-            automatisk mod dit register.
+            <strong className="font-semibold">Hittegodscentralen.dk</strong>,
+            Danmarks nationale hittegodsdatabase. Når du har mistet noget, kan
+            du oprette en efterlysning der, og vi krydstjekker automatisk mod
+            dit register.
           </p>
         </div>
 

@@ -14,7 +14,7 @@ export function ProtectBanner() {
           </h2>
 
           <p className="mt-6 text-[16px] leading-[1.75] text-white/80">
-            Forsikringen beder om kvittering og serienummer &mdash; også på ting
+            Forsikringen beder om kvittering og serienummer, også på ting
             du købte for fem år siden. Er papiret væk, falder erstatningen. Her
             ligger det samlet, klar til at sende videre samme dag.
           </p>

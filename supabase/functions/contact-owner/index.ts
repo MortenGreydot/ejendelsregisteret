@@ -175,7 +175,7 @@ function validate(input: {
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email) ||
       input.email.length > LIMITS.email) {
-    return "Tjek at din e-mail er skrevet rigtigt — vi skal kunne svare dig.";
+    return "Tjek at din e-mail er skrevet rigtigt, så vi kan svare dig.";
   }
 
   if (input.phone.length > LIMITS.phone) return "Telefonnummeret er for langt.";

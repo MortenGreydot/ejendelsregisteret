@@ -20,10 +20,10 @@ export function membershipActive(to: string, name: string | null) {
     subject: "Dit medlemskab er aktivt",
     heading: `${greeting}.`,
     preheader:
-      "Dit medlemskab er aktivt. Registrér din første ejendel — det tager to minutter.",
+      "Dit medlemskab er aktivt. Registrér din første ejendel. Det tager to minutter.",
     paragraphs: [
       "Din betaling er gennemført, og dit medlemskab er aktivt.",
-      "Find noget med et serienummer &mdash; din cykel, dit v&aelig;rkt&oslash;j, din laptop. Tag et billede af genstanden og af m&aelig;rkaten med serienummeret, s&aring; er den dokumenteret.",
+      "Find noget med et serienummer: din cykel, dit v&aelig;rkt&oslash;j, din laptop. Tag et billede af genstanden og af m&aelig;rkaten med serienummeret, s&aring; er den dokumenteret.",
       "Det tager to minutter pr. ting, og s&aring; har du beviset klar den dag du f&aring;r brug for det.",
     ],
     button: {
@@ -49,7 +49,7 @@ export function receipt(
 
   return sendEmail({
     to,
-    subject: `Kvittering fra Ejendelsregisteret — ${kr} kr.`,
+    subject: `Kvittering fra Ejendelsregisteret, ${kr} kr.`,
     heading: "Tak for din betaling",
     preheader: `Vi har modtaget ${kr} kr.`,
     paragraphs: [
@@ -96,7 +96,7 @@ export function accountCreated(to: string, name: string | null) {
     heading: `${greeting}.`,
     preheader: "Din konto hos Ejendelsregisteret er oprettet.",
     paragraphs: [
-      "Din konto er oprettet. Sidste skridt er at aktivere dit medlemskab &mdash; derefter kan du begynde at registrere dine ejendele.",
+      "Din konto er oprettet. Sidste skridt er at aktivere dit medlemskab. Derefter kan du begynde at registrere dine ejendele.",
       "Med et medlemskab samler du serienummer, kvittering og billeder ét sted, s&aring; du har dokumentationen klar den dag noget bliver v&aelig;k, stj&aring;let eller br&aelig;ndt.",
     ],
     button: { label: "Aktivér dit medlemskab", url: `${siteUrl()}/priser` },
@@ -112,7 +112,7 @@ export function firstItem(to: string, itemName: string) {
     preheader: `${itemName} er nu registreret i Ejendelsregisteret.`,
     paragraphs: [
       `<strong style="color:#1c2d4f;">${itemName}</strong> er registreret. Den er dokumenteret med det du har lagt ind, og kan sl&aring;s op p&aring; sit serienummer hvis den bliver v&aelig;k.`,
-      "Fors&aelig;t med resten. De fleste undervurderer hvor meget de ejer med et serienummer &mdash; telefon, cykel, v&aelig;rkt&oslash;j, kamera, ur.",
+      "Fors&aelig;t med resten. De fleste undervurderer hvor meget de ejer med et serienummer: telefon, cykel, v&aelig;rkt&oslash;j, kamera, ur.",
     ],
     button: { label: "Registrér flere", url: `${siteUrl()}/min-side` },
     footnote:
@@ -132,7 +132,7 @@ export function itemLimitReached(
     heading: `Du har brugt dine ${count} inkluderede ejendele.`,
     preheader: `Flere ejendele koster ${unitPrice} kr./md. pr. stk.`,
     paragraphs: [
-      `Du har nu registreret <strong style="color:#1c2d4f;">${count} ejendele</strong> &mdash; alt hvad dit medlemskab inkluderer.`,
+      `Du har nu registreret <strong style="color:#1c2d4f;">${count} ejendele</strong>, alt hvad dit medlemskab inkluderer.`,
       `Du kan sagtens registrere flere. Hver ejendel derudover koster <strong style="color:#1c2d4f;">${unitPrice} kr./md.</strong> og l&aelig;gges p&aring; din n&aelig;ste faktura.`,
       "Bel&oslash;bet f&oslash;lger antallet: sletter du en ejendel igen, falder det tilsvarende.",
     ],
@@ -152,7 +152,7 @@ export function noItemsYet(to: string, name: string | null) {
       "Dit medlemskab er aktivt, men der er ingen ejendele registreret endnu.",
     paragraphs: [
       "Dit medlemskab er aktivt, men der ligger ingen ejendele i dit register endnu. Det betyder ogs&aring; at der ikke er noget at dokumentere med, hvis uheldet sker.",
-      "Start med &eacute;n ting. Tag telefonen, cyklen eller v&aelig;rkt&oslash;jet &mdash; et billede af genstanden og et af m&aelig;rkaten med serienummeret er nok.",
+      "Start med &eacute;n ting. Tag telefonen, cyklen eller v&aelig;rkt&oslash;jet. Et billede af genstanden og et af m&aelig;rkaten med serienummeret er nok.",
     ],
     button: {
       label: "Registrér din første ejendel",
@@ -232,7 +232,7 @@ export function contactMessage(input: {
     replyTo: input.email,
     subject: `Kontakt: ${input.subject}`,
     heading: "Ny besked fra kontaktformularen",
-    preheader: `${input.name} — ${input.subject}`,
+    preheader: `${input.name}: ${input.subject}`,
     paragraphs: [rows, body],
     footnote: "Svar på denne mail for at skrive direkte til afsenderen.",
   });
@@ -272,7 +272,7 @@ export function ownerContacted(
   const indledning =
     request.itemStatus === "registered"
       ? `${hilsen}ogen har slået serienummeret på <strong style="color:#1c2d4f;">${item}</strong> op og skrevet til dig gennem Ejendelsregisteret.`
-      : `${hilsen}ogen har slået serienummeret på <strong style="color:#1c2d4f;">${item}</strong> op — den du har meldt ${request.itemStatus === "stolen" ? "stj&aring;let" : "savnet"} — og skrevet til dig gennem Ejendelsregisteret.`;
+      : `${hilsen}ogen har slået serienummeret på <strong style="color:#1c2d4f;">${item}</strong> op, den du har meldt ${request.itemStatus === "stolen" ? "stj&aring;let" : "savnet"}, og skrevet til dig gennem Ejendelsregisteret.`;
 
   const kontakt = [
     `<strong style="color:#1c2d4f;">E-mail:</strong> <a href="mailto:${escapeHtml(request.finderEmail)}" style="color:#d2802e;">${escapeHtml(request.finderEmail)}</a>`,
@@ -293,7 +293,7 @@ export function ownerContacted(
       indledning,
       `<strong style="color:#1c2d4f;">${escapeHtml(request.finderName)} skriver:</strong>`,
       `<span style="display:block; border-left:3px solid #d2802e; padding-left:14px;">${body}</span>`,
-      `Du kan svare direkte &mdash; tryk Svar p&aring; denne mail, s&aring; g&aring;r den til ${escapeHtml(request.finderName)}. Deres oplysninger:`,
+      `Du kan svare direkte. Tryk Svar p&aring; denne mail, s&aring; g&aring;r den til ${escapeHtml(request.finderName)}. Deres oplysninger:`,
       kontakt,
     ],
     footnote:
@@ -339,6 +339,6 @@ export function ownerContactCopy(request: ContactRequest & { itemId: string }) {
       `<span style="display:block; border-left:3px solid #d2802e; padding-left:14px;">${escapeHtml(request.message).replace(/\n/g, "<br>")}</span>`,
     ],
     footnote:
-      "Ejeren kan svare finderen direkte. Denne kopi er jeres spor på henvendelsen — svar på den for selv at skrive til finderen.",
+      "Ejeren kan svare finderen direkte. Denne kopi er jeres spor på henvendelsen. Svar på den for selv at skrive til finderen.",
   });
 }

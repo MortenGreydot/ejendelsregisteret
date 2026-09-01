@@ -31,7 +31,7 @@ const safeName = (name: string) => name.replace(/[^a-zA-Z0-9._-]/g, "_");
  * Derfor fanges de her med en besked der siger hvad man skal gøre.
  */
 const heicMessage = (formats: string) =>
-  `Vi tager kun imod ${formats}. HEIC er iPhones eget format og kan ikke vises i de fleste browsere — vælg billedet via Fotos-appen frem for Filer, så konverterer iOS det automatisk til JPG.`;
+  `Vi tager kun imod ${formats}. HEIC er iPhones eget format og kan ikke vises i de fleste browsere. Vælg billedet via Fotos-appen frem for Filer, så konverterer iOS det automatisk til JPG.`;
 
 const IMAGE_FORMATS = "PNG, JPG og WEBP";
 const DOCUMENT_FORMATS = "PNG, JPG, WEBP og PDF";
@@ -201,7 +201,7 @@ export function MediaGrid({
           .insert({ item_id: itemId, file_path: path, file_name: file.name });
       }
       if (files.length > room) {
-        setError(`Kun ${room} fil(er) blev tilføjet — grænsen er ${max}.`);
+        setError(`Kun ${room} fil(er) blev tilføjet. Grænsen er ${max}.`);
       }
       onChanged();
     } finally {

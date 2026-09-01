@@ -144,7 +144,7 @@ export function MatchCard({
         det ikke den samme ejendel.
         <br />
         Vi viser hverken ejerens navn, kontaktoplysninger eller kvitteringer. Du
-        kan kun skrive til dem gennem Ejendelsregisteret — omvendt kan de svare
+        kan kun skrive til dem gennem Ejendelsregisteret. Omvendt kan de svare
         dig direkte, hvis de vil.
       </p>
     </div>

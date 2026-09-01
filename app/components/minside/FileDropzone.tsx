@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 /** Se MediaGrid for hvorfor HEIC bevidst ikke står i `accept`. */
 const heicMessage = (formats: string) =>
-  `Vi tager kun imod ${formats}. HEIC er iPhones eget format og kan ikke vises i de fleste browsere — vælg billedet via Fotos-appen frem for Filer, så konverterer iOS det automatisk til JPG.`;
+  `Vi tager kun imod ${formats}. HEIC er iPhones eget format og kan ikke vises i de fleste browsere. Vælg billedet via Fotos-appen frem for Filer, så konverterer iOS det automatisk til JPG.`;
 
 const isHeic = (name: string) => /\.hei[cf]$/i.test(name.trim());
 

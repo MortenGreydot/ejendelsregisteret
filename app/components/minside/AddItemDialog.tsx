@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { userMessage } from "@/lib/errors";
 
 import { CategoryCombobox, type Category } from "./CategoryCombobox";
+import { AddItemTrigger } from "./AddItemTrigger";
 import { FileDropzone } from "./FileDropzone";
 
 export type { Category };
@@ -52,11 +53,6 @@ export function AddItemDialog({
   const [documents, setDocuments] = useState<File[]>([]);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Kvoten er brugt op når man har lige så mange ejendele som medlemskabet
-  // inkluderer. Den næste koster ekstra, og det afgøres af hvilken knap
-  // brugeren trykker på — ikke af en dialog der afbryder dem.
-  const atLimit = itemCount >= includedItems;
 
   function open() {
     setCategory("");
@@ -174,42 +170,13 @@ export function AddItemDialog({
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-3 sm:justify-end">
-        {atLimit && canAddItems && (
-          <span className="w-full text-[13px] text-muted sm:w-auto">
-            {itemCount} af {includedItems} brugt &middot; ekstra ejendele koster{" "}
-            {extraItemPrice} kr./md. pr. stk.
-          </span>
-        )}
-
-        <button
-          type="button"
-          onClick={open}
-          disabled={atLimit || !canAddItems}
-          title={
-            !canAddItems
-              ? "Dit medlemskab er ikke aktivt. Gennemfør betalingen for at oprette ejendele."
-              : atLimit
-                ? `Dit medlemskab inkluderer ${includedItems} ejendele. Brug "Tilkøb ejendel" for at oprette flere.`
-                : undefined
-          }
-          className="inline-flex h-11 sm:h-10 w-full items-center justify-center gap-2 rounded-sm bg-orange px-5 text-[15px] font-medium text-white transition-colors hover:bg-orange-dark disabled:cursor-not-allowed disabled:bg-line disabled:text-muted disabled:hover:bg-line sm:w-auto"
-        >
-          <Plus className="size-4" strokeWidth={2.5} />
-          Tilføj ejendel
-        </button>
-
-        {atLimit && canAddItems && (
-          <button
-            type="button"
-            onClick={open}
-            className="inline-flex h-11 sm:h-10 w-full items-center justify-center gap-2 rounded-sm border border-orange px-5 text-[15px] font-medium text-orange transition-colors hover:bg-orange hover:text-white sm:w-auto"
-          >
-            <Plus className="size-4" strokeWidth={2.5} />
-            Tilkøb ejendel
-          </button>
-        )}
-      </div>
+      <AddItemTrigger
+        itemCount={itemCount}
+        includedItems={includedItems}
+        extraItemPrice={extraItemPrice}
+        canAddItems={canAddItems}
+        onOpen={open}
+      />
 
 
       <dialog
@@ -376,7 +343,7 @@ export function AddItemDialog({
               <span className={labelClass}>Kvittering / dokumentation</span>
               <p className="mt-1 text-[14px] leading-relaxed text-body">
                 Upload et foto eller scan af din kvittering, garantibevis eller
-                forsikringsdokument &mdash; så har du alt samlet digitalt og
+                forsikringsdokument. Så har du alt samlet digitalt og
                 behøver ikke gemme det fysiske papir.
               </p>
               <div className="mt-2">

@@ -83,7 +83,7 @@ export function ContactOwner({
         </p>
         <p className="mx-auto mt-1.5 max-w-md text-[14px] leading-relaxed text-body">
           Vi har givet den videre til ejeren sammen med din mailadresse, så de
-          kan svare dig direkte. Du har ikke fået deres — vil du skrive igen,
+          kan svare dig direkte. Du har ikke fået deres, så vil du skrive igen,
           går det gennem os.
         </p>
       </div>
@@ -99,12 +99,12 @@ export function ContactOwner({
           className="inline-flex h-11 items-center gap-2 rounded-sm bg-orange px-6 text-[15px] font-bold text-white transition-colors hover:bg-orange-dark"
         >
           <Mail className="size-4" strokeWidth={2.5} />
-          {status === "registered" ? "Kontakt ejeren" : "Jeg har fundet den"}
+          Kontakt ejeren
         </button>
         <p className="mt-2.5 text-[13px] leading-relaxed text-muted">
-          Beskeden går gennem Ejendelsregisteret. Ejeren får din mailadresse,
-          så de kan svare dig — men du får ikke deres, og du kan kun skrive
-          til dem herigennem.
+          Beskeden går gennem Ejendelsregisteret. Ejeren får din mailadresse, så
+          de kan svare dig. Du får ikke deres, og du kan kun skrive til dem
+          herigennem.
         </p>
       </div>
     );

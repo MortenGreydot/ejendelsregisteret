@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, X } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
@@ -158,7 +159,7 @@ export function AuthDialog() {
               Ejendelsregisteret
             </p>
             <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-orange">
-              Dækker alt &ndash; over alt
+              Dækker alt, over alt
             </p>
           </div>
 
@@ -267,12 +268,13 @@ export function AuthDialog() {
 
             {isLogin && (
               <div className="text-right">
-                <a
-                  href="#"
+                <Link
+                  href="/glemt-adgangskode"
+                  onClick={close}
                   className="text-[13px] font-medium text-orange hover:text-orange-dark"
                 >
                   Glemt adgangskode?
-                </a>
+                </Link>
               </div>
             )}
 

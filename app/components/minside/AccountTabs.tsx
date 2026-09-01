@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { AddItemDialog, type Category } from "./AddItemDialog";
 import { ItemList, type Item } from "./ItemList";
+import { ItemWizard } from "./ItemWizard";
 
 export type Tab = "ejendele" | "profil";
 
@@ -66,14 +67,38 @@ export function AccountTabs({
             <h2 className="font-display text-[22px] font-normal text-navy">
               Mine ejendele
             </h2>
-            <AddItemDialog
-              userId={userId}
-              categories={categories}
-              itemCount={items.length}
-              includedItems={includedItems}
-              extraItemPrice={extraItemPrice}
-              canAddItems={canAddItems}
-            />
+            {/*
+              Under 900px bruges den trinvise guide i stedet for dialogen.
+              Den lange formular kræver at man overskuer alle felter på én
+              gang, og det er der ikke plads til på en telefon — ét
+              spørgsmål ad gangen er nemmere at komme igennem.
+
+              Begge er i DOM'en, og CSS afgør hvilken der vises. Med en
+              JavaScript-måling ville serveren og browseren være uenige om
+              skærmbredden ved første render, og så ville knappen hoppe.
+            */}
+            <div className="compact:hidden">
+              <ItemWizard
+                userId={userId}
+                categories={categories}
+                itemCount={items.length}
+                includedItems={includedItems}
+                extraItemPrice={extraItemPrice}
+                canAddItems={canAddItems}
+                showTrigger
+              />
+            </div>
+
+            <div className="hidden compact:block">
+              <AddItemDialog
+                userId={userId}
+                categories={categories}
+                itemCount={items.length}
+                includedItems={includedItems}
+                extraItemPrice={extraItemPrice}
+                canAddItems={canAddItems}
+              />
+            </div>
           </div>
 
           <div className="mt-6">

@@ -92,7 +92,7 @@ function template({
 
         <tr><td class="px" style="padding:28px 32px 0 32px;">
           <div style="${FF} font-size:17px; font-weight:700; color:${NAVY};">Ejendelsregisteret</div>
-          <div style="${FF} font-size:10px; font-weight:700; letter-spacing:1.6px; text-transform:uppercase; color:${ORANGE}; padding-top:3px;">D&aelig;kker alt &ndash; over alt</div>
+          <div style="${FF} font-size:10px; font-weight:700; letter-spacing:1.6px; text-transform:uppercase; color:${ORANGE}; padding-top:3px;">D&aelig;kker alt, over alt</div>
         </td></tr>
 
         <tr><td class="px" style="padding:24px 32px 0 32px;">

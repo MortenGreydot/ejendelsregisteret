@@ -19,7 +19,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-0.5 border-b border-line py-2 last:border-0 sm:flex-row sm:gap-4">
       <dt className="text-[13px] text-muted sm:w-36 sm:shrink-0">{label}</dt>
-      <dd className="min-w-0 flex-1 text-[14px] text-body">{value || "—"}</dd>
+      <dd className="min-w-0 flex-1 text-[14px] text-body">{value || "Ikke angivet"}</dd>
     </div>
   );
 }

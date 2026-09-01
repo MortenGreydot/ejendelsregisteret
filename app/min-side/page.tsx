@@ -37,7 +37,9 @@ const dkMonth = (iso: string | null) =>
     : null;
 
 /** Min side */
-export default async function MyAccountPage({ searchParams }: PageProps<"/min-side">) {
+export default async function MyAccountPage({
+  searchParams,
+}: PageProps<"/min-side">) {
   const params = await searchParams;
   // Sat af Stripes success_url. Findes kun i den ene viderestilling efter
   // en gennemført betaling, så guiden vises én gang og ikke ved hvert besøg.
@@ -140,7 +142,7 @@ export default async function MyAccountPage({ searchParams }: PageProps<"/min-si
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
           <div>
             <h1 className="font-display text-[26px] font-normal text-navy sm:text-[32px]">
-              Min Side
+              Inventarlisten
             </h1>
           </div>
         </div>

@@ -319,7 +319,7 @@ export function ItemList({
                     <p className="mt-0.5 text-[13px] text-muted">
                       {[item.brand, item.category]
                         .filter(Boolean)
-                        .join(" · ") || "—"}
+                        .join(" · ") || "Ingen oplysninger"}
                     </p>
                   </div>
 
@@ -419,7 +419,7 @@ export function ItemList({
                   <InfoHint title="Opdater status">
                     Markér ejendelen som savnet eller stjålet. Statussen er
                     synlig for politiet og for en finder der slår serienummeret
-                    op — så det er den du ændrer først, hvis noget bliver væk.
+                    op. Det er derfor den du ændrer først, hvis noget bliver væk.
                   </InfoHint>
                 </span>
 

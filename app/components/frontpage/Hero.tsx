@@ -14,7 +14,7 @@ export function Hero({ plan }: { plan: Plan }) {
     <section className="photo-hero">
       <div className="mx-auto max-w-3xl px-6 py-24 text-center">
         <p className="text-[13px] font-semibold uppercase tracking-[0.25em] text-orange">
-          Dækker alt &mdash; over alt
+          Dækker alt, over alt
         </p>
 
         <h1 className="mt-5 font-display text-[46px] leading-[1.1] font-normal text-white sm:text-[56px]">

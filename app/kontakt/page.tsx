@@ -4,7 +4,7 @@ import { ContactForm } from "../components/ContactForm";
 import { Navbar } from "../components/Navbar";
 
 export const metadata: Metadata = {
-  title: "Kontakt — Ejendelsregisteret",
+  title: "Kontakt | Ejendelsregisteret",
   description: "Skriv til os. Vi svarer typisk inden for en hverdag.",
 };
 
@@ -19,7 +19,7 @@ export default function ContactPage() {
             Kontakt
           </h1>
           <p className="mt-2 text-center text-[15px] text-body">
-            Vi svarer hurtigt &mdash; typisk inden for en hverdag.
+            Vi svarer hurtigt, typisk inden for en hverdag.
           </p>
 
           <div className="mt-10">

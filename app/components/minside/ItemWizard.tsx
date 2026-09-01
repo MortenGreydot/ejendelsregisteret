@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { createItem } from "@/lib/items";
 
 import { CategoryCombobox, type Category } from "./CategoryCombobox";
+import { AddItemTrigger } from "./AddItemTrigger";
 import { FileDropzone } from "./FileDropzone";
 
 const MB = 1024 * 1024;
@@ -40,6 +41,8 @@ export function ItemWizard({
   showIntro = false,
   skipHref,
   trigger,
+  showTrigger = false,
+  canAddItems = true,
   onCreated,
 }: {
   userId: string;
@@ -56,6 +59,12 @@ export function ItemWizard({
   /** Hvor "Spring over" fører hen. Uden den lukkes dialogen bare. */
   skipHref?: string;
   trigger?: React.ReactNode;
+  /** Viser den fælles opret-knap over guiden. Bruges på små skærme, hvor
+   *  guiden træder i stedet for den almindelige dialog. */
+  showTrigger?: boolean;
+  /** Kun relevant sammen med showTrigger: gråner knappen uden aktivt
+   *  medlemskab, ligesom i dialogen. */
+  canAddItems?: boolean;
   onCreated?: () => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -167,6 +176,16 @@ export function ItemWizard({
 
   return (
     <>
+      {showTrigger && (
+        <AddItemTrigger
+          itemCount={itemCount}
+          includedItems={includedItems}
+          extraItemPrice={extraItemPrice}
+          canAddItems={canAddItems}
+          onOpen={() => dialogRef.current?.showModal()}
+        />
+      )}
+
       {trigger && (
         <span onClick={() => dialogRef.current?.showModal()}>{trigger}</span>
       )}
@@ -228,7 +247,7 @@ export function ItemWizard({
                 onClick={finish}
                 className="mt-4 text-[14px] text-muted underline underline-offset-4 transition-colors hover:text-navy"
               >
-                Nej tak &mdash; gå til min side
+                Nej tak, gå til min side
               </button>
             </div>
           ) : phase === "intro" ? (

@@ -46,7 +46,7 @@ export const PLANS: Record<PlanId, Plan> = {
     eyebrow: "Privat",
     headline: "Privat medlemskab",
     intro:
-      "Betal 99 kr. ved oprettelse, derefter 29 kr./md. Inkluderer 5 ejendele — tilføj flere for blot 2 kr./stk./md.",
+      "Betal 99 kr. ved oprettelse, derefter 29 kr./md. Inkluderer 5 ejendele. Tilføj flere for blot 2 kr./stk./md.",
     name: "Privat",
     tagline: "Til dig og din husholdning",
     monthlyPrice: 29,
@@ -108,7 +108,7 @@ export const FAQ = [
   {
     question: "Kan jeg opsige mit abonnement?",
     answer:
-      "Ja — du kan opsige til enhver tid via din profil. Abonnementet løber til udgangen af den betalte periode.",
+      "Ja, du kan opsige til enhver tid via din profil. Abonnementet løber til udgangen af den betalte periode.",
   },
   {
     question: "Hvilken betalingsmetode accepteres?",
