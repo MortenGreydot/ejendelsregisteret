@@ -137,16 +137,16 @@ export default async function MyAccountPage({ searchParams }: PageProps<"/min-si
     <>
       <Navbar />
       <header className="border-b border-line bg-white">
-        <div className="mx-auto max-w-5xl px-6 py-8">
+        <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
           <div>
-            <h1 className="font-display text-[32px] font-normal text-navy">
+            <h1 className="font-display text-[26px] font-normal text-navy sm:text-[32px]">
               Min Side
             </h1>
           </div>
         </div>
       </header>
       <main className="flex-1 bg-mist">
-        <div className="mx-auto max-w-5xl px-6 py-10">
+        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
           {justPaid && items.length === 0 && (
             <ItemWizard
               userId={userId}

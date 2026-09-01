@@ -40,7 +40,7 @@ export function AccountTabs({
 
   return (
     <>
-      <div className="mt-10 border-b border-line">
+      <div className="mt-8 border-b border-line sm:mt-10">
         <nav className="flex gap-8 text-[15px]">
           {tabs.map((t) => (
             <button
@@ -62,7 +62,7 @@ export function AccountTabs({
 
       {tab === "ejendele" ? (
         <section className="mt-8">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <h2 className="font-display text-[22px] font-normal text-navy">
               Mine ejendele
             </h2>

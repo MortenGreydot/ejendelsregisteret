@@ -26,14 +26,14 @@ export function StatCards({
   ];
 
   return (
-    <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <dl className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className="rounded-sm border border-line bg-white px-5 py-4"
+          className="rounded-sm border border-line bg-white px-4 py-3.5 sm:px-5 sm:py-4"
         >
           <dt className="text-[13px] text-muted">{stat.label}</dt>
-          <dd className="mt-1.5 text-[19px] font-bold text-navy">
+          <dd className="mt-1.5 text-[17px] font-bold break-words text-navy sm:text-[19px]">
             {stat.value}
           </dd>
         </div>

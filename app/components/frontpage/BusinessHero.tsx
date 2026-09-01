@@ -22,7 +22,7 @@ const SOURCE_URL =
 export function BusinessHero() {
   return (
     <section className="photo-tools">
-      <div className="mx-auto max-w-6xl px-6 py-20">
+      <div className="mx-auto max-w-6xl px-6 py-8">
         <p className="inline-block rounded-sm bg-orange px-4 py-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-white">
           For håndværkere &amp; entreprenører
         </p>

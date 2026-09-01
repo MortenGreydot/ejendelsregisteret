@@ -55,7 +55,7 @@ export function PlanPanel({
 
   return (
     <div className="space-y-4 flex justify-between flex-col">
-      <div className="rounded-sm border border-line bg-white p-6 h-full">
+      <div className="h-full rounded-sm border border-line bg-white p-5 sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="font-display text-[20px] font-bold text-navy">

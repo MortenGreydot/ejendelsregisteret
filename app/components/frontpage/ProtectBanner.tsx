@@ -1,7 +1,7 @@
 export function ProtectBanner() {
   return (
     <section className="photo-protect">
-      <div className="mx-auto max-w-6xl px-6 py-24">
+      <div className="mx-auto max-w-6xl px-6 py-16">
         <div className="max-w-lg">
           <p className="text-[12px] font-medium uppercase tracking-[0.22em] text-white/70">
             Tryghed &middot; Sikkerhed &middot; Overblik

@@ -74,7 +74,7 @@ export function DeleteAccount({ itemCount }: { itemCount: number }) {
         }}
         className="m-auto w-[min(28rem,calc(100vw-2rem))] rounded-sm border-0 bg-transparent p-0 backdrop:bg-[#3d3d3d]/85"
       >
-        <div className="rounded-sm bg-white p-8">
+        <div className="max-h-[90dvh] overflow-y-auto rounded-sm bg-white p-5 sm:p-8">
           <span className="flex size-10 items-center justify-center rounded-full bg-red-50 text-red-600">
             <TriangleAlert className="size-5" strokeWidth={2} />
           </span>
@@ -127,7 +127,7 @@ export function DeleteAccount({ itemCount }: { itemCount: number }) {
             </p>
           )}
 
-          <div className="mt-6 flex gap-3">
+          <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row">
             <button
               type="button"
               onClick={handleDelete}

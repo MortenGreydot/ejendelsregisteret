@@ -91,9 +91,9 @@ export function PaymentNotice({
   return (
     <section
       role="alert"
-      className="mb-8 rounded-sm border border-l-4 border-amber-400 border-y-line border-r-line bg-amber-50/60 p-5"
+      className="mb-8 rounded-sm border border-l-4 border-amber-400 border-y-line border-r-line bg-amber-50/60 p-4 sm:p-5"
     >
-      <div className="flex gap-4">
+      <div className="flex gap-3 sm:gap-4">
         <TriangleAlert
           className="mt-0.5 size-5 shrink-0 text-amber-600"
           strokeWidth={2}
@@ -113,7 +113,7 @@ export function PaymentNotice({
             type="button"
             onClick={retry}
             disabled={pending}
-            className="mt-4 inline-flex h-10 items-center gap-2 rounded-sm bg-orange px-6 text-[15px] font-bold text-white transition-colors hover:bg-orange-dark disabled:opacity-70"
+            className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-sm bg-orange px-6 text-[15px] font-bold text-white transition-colors hover:bg-orange-dark disabled:opacity-70 sm:h-10 sm:w-auto"
           >
             <CreditCard className="size-4" strokeWidth={2} />
             {pending ? "Sender dig videre…" : message.cta}

@@ -176,9 +176,9 @@ export function ItemWizard({
         aria-labelledby="guide-titel"
         className="m-auto w-[min(30rem,calc(100vw-1.5rem))] rounded-sm border-0 bg-transparent p-0 backdrop:bg-[#3d3d3d]/85"
       >
-        <div className="rounded-sm bg-white">
+        <div className="max-h-[90dvh] overflow-y-auto rounded-sm bg-white">
           {phase === "done" ? (
-            <div className="p-8 text-center">
+            <div className="p-5 text-center sm:p-8">
               <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                 <Check className="size-6" strokeWidth={2.5} />
               </span>
@@ -232,7 +232,7 @@ export function ItemWizard({
               </button>
             </div>
           ) : phase === "intro" ? (
-            <div className="p-8 text-center">
+            <div className="p-5 text-center sm:p-8">
               <h2
                 id="guide-titel"
                 className="font-display text-[26px] leading-snug font-normal text-navy"
@@ -292,7 +292,7 @@ export function ItemWizard({
                 ))}
               </div>
 
-              <div className="min-h-[15rem] px-6 py-6">
+              <div className="min-h-[15rem] px-5 py-5 sm:px-6 sm:py-6">
                 {step === 0 && (
                   <>
                     <h2
@@ -468,14 +468,14 @@ export function ItemWizard({
                 )}
               </div>
 
-              <div className="flex items-center gap-3 border-t border-line px-6 py-4">
+              <div className="flex items-center gap-3 border-t border-line px-5 py-4 sm:px-6">
                 {step > 0 && (
                   <button
                     type="button"
                     disabled={pending}
                     onClick={() => setStep((s) => s - 1)}
                     aria-label="Tilbage"
-                    className="text-muted transition-colors hover:text-navy disabled:opacity-50"
+                    className="-m-2 p-2 text-muted transition-colors hover:text-navy disabled:opacity-50"
                   >
                     <ArrowLeft className="size-4" strokeWidth={2} />
                   </button>

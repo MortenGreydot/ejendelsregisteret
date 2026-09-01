@@ -65,7 +65,7 @@ export function InfoHint({
         <span
           id={id}
           role="tooltip"
-          className="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 rounded-sm border border-line bg-white p-3 text-left shadow-lg shadow-navy/10"
+          className="absolute right-0 bottom-full z-20 mb-2 w-[min(16rem,calc(100vw-2rem))] rounded-sm border border-line bg-white p-3 text-left shadow-lg shadow-navy/10 sm:left-1/2 sm:right-auto sm:-translate-x-1/2"
         >
           <span className="block text-[13px] font-bold text-navy">{title}</span>
           <span className="mt-1 block text-[13px] leading-relaxed text-body">

@@ -17,8 +17,8 @@ const labelClass = "block text-[13px] font-semibold text-navy";
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex gap-4 border-b border-line py-2 last:border-0">
-      <dt className="w-36 shrink-0 text-[13px] text-muted">{label}</dt>
+    <div className="flex flex-col gap-0.5 border-b border-line py-2 last:border-0 sm:flex-row sm:gap-4">
+      <dt className="text-[13px] text-muted sm:w-36 sm:shrink-0">{label}</dt>
       <dd className="min-w-0 flex-1 text-[14px] text-body">{value || "—"}</dd>
     </div>
   );
@@ -267,11 +267,11 @@ export function ItemDetails({
 
       {error && <p className="text-[13px] text-red-600">{error}</p>}
 
-      <div className="flex gap-2">
+      <div className="flex flex-col-reverse gap-2 sm:flex-row">
         <button
           type="submit"
           disabled={pending}
-          className="h-10 rounded-sm bg-orange px-6 text-[14px] font-bold text-white transition-colors hover:bg-orange-dark disabled:opacity-70"
+          className="h-11 rounded-sm bg-orange px-6 text-[14px] font-bold text-white transition-colors hover:bg-orange-dark disabled:opacity-70 sm:h-10"
         >
           {pending ? "Gemmer…" : "Gem ændringer"}
         </button>
@@ -279,7 +279,7 @@ export function ItemDetails({
           type="button"
           onClick={onDone}
           disabled={pending}
-          className="h-10 rounded-sm border border-line px-6 text-[14px] font-medium text-navy transition-colors hover:border-navy"
+          className="h-11 rounded-sm border border-line px-6 text-[14px] font-medium text-navy transition-colors hover:border-navy sm:h-10"
         >
           Annuller
         </button>

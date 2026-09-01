@@ -174,9 +174,9 @@ export function AddItemDialog({
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-end gap-3">
+      <div className="flex flex-wrap items-center gap-3 sm:justify-end">
         {atLimit && canAddItems && (
-          <span className="text-[13px] text-muted">
+          <span className="w-full text-[13px] text-muted sm:w-auto">
             {itemCount} af {includedItems} brugt &middot; ekstra ejendele koster{" "}
             {extraItemPrice} kr./md. pr. stk.
           </span>
@@ -193,7 +193,7 @@ export function AddItemDialog({
                 ? `Dit medlemskab inkluderer ${includedItems} ejendele. Brug "Tilkøb ejendel" for at oprette flere.`
                 : undefined
           }
-          className="inline-flex h-10 items-center gap-2 rounded-sm bg-orange px-5 text-[15px] font-medium text-white transition-colors hover:bg-orange-dark disabled:cursor-not-allowed disabled:bg-line disabled:text-muted disabled:hover:bg-line"
+          className="inline-flex h-11 sm:h-10 w-full items-center justify-center gap-2 rounded-sm bg-orange px-5 text-[15px] font-medium text-white transition-colors hover:bg-orange-dark disabled:cursor-not-allowed disabled:bg-line disabled:text-muted disabled:hover:bg-line sm:w-auto"
         >
           <Plus className="size-4" strokeWidth={2.5} />
           Tilføj ejendel
@@ -203,7 +203,7 @@ export function AddItemDialog({
           <button
             type="button"
             onClick={open}
-            className="inline-flex h-10 items-center gap-2 rounded-sm border border-orange px-5 text-[15px] font-medium text-orange transition-colors hover:bg-orange hover:text-white"
+            className="inline-flex h-11 sm:h-10 w-full items-center justify-center gap-2 rounded-sm border border-orange px-5 text-[15px] font-medium text-orange transition-colors hover:bg-orange hover:text-white sm:w-auto"
           >
             <Plus className="size-4" strokeWidth={2.5} />
             Tilkøb ejendel
@@ -222,12 +222,12 @@ export function AddItemDialog({
       >
         <form
           onSubmit={handleSubmit}
-          className="max-h-[85vh] overflow-y-auto rounded-sm bg-white p-8"
+          className="max-h-[90dvh] overflow-y-auto rounded-sm bg-white p-5 sm:p-8"
         >
           <div className="flex items-start justify-between gap-4">
             <h2
               id="tilfoej-titel"
-              className="font-display text-[26px] font-normal text-navy"
+              className="font-display text-[22px] font-normal text-navy sm:text-[26px]"
             >
               Tilføj ny ejendel
             </h2>
@@ -403,7 +403,7 @@ export function AddItemDialog({
             </p>
           )}
 
-          <div className="mt-7 flex gap-3 border-t border-line pt-6">
+          <div className="mt-7 flex flex-col-reverse gap-3 border-t border-line pt-6 sm:flex-row">
             <button
               type="submit"
               disabled={pending}

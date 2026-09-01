@@ -62,7 +62,7 @@ export function ProfileForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-sm border border-line bg-white p-6"
+      className="rounded-sm border border-line bg-white p-5 sm:p-6"
     >
       <h2 className="font-display text-[20px] font-bold text-navy">
         Profiloplysninger

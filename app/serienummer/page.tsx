@@ -43,7 +43,9 @@ const dk = (iso: string | null) =>
   iso ? new Date(iso).toLocaleDateString("da-DK", { dateStyle: "long" }) : "";
 
 /** Søg på serienummer */
-export default async function SerialLookupPage({ searchParams }: PageProps<"/serienummer">) {
+export default async function SerialLookupPage({
+  searchParams,
+}: PageProps<"/serienummer">) {
   const params = await searchParams;
   const query = typeof params.q === "string" ? params.q.trim() : "";
 
@@ -80,7 +82,7 @@ export default async function SerialLookupPage({ searchParams }: PageProps<"/ser
     <>
       <Navbar />
       <main className="flex-1 bg-mist">
-        <div className="mx-auto max-w-2xl px-6 py-16">
+        <div className="mx-auto max-w-2xl px-6 py-8">
           <h1 className="font-display text-[32px] font-normal text-navy">
             Slå et serienummer op
           </h1>
@@ -112,8 +114,8 @@ export default async function SerialLookupPage({ searchParams }: PageProps<"/ser
 
           <p className="mt-3 text-[13px] text-muted">
             Bindestreger, mellemrum og store/små bogstaver er uden betydning.
-            Nummeret skal derimod være fuldstændigt — der søges ikke på dele
-            af et serienummer.
+            Nummeret skal derimod være fuldstændigt — der søges ikke på dele af
+            et serienummer.
           </p>
 
           {query.length === 0 && (
@@ -277,13 +279,13 @@ export default async function SerialLookupPage({ searchParams }: PageProps<"/ser
                   />
 
                   <p className="border-t border-line bg-mist px-6 py-4 text-[13px] leading-relaxed text-muted">
-                    Sammenlign oplysningerne med den genstand du har.
-                    Stemmer de ikke, er det ikke den samme ejendel.
+                    Sammenlign oplysningerne med den genstand du har. Stemmer de
+                    ikke, er det ikke den samme ejendel.
                     <br />
                     Vi viser hverken ejerens navn, kontaktoplysninger eller
                     kvitteringer. Du kan kun skrive til dem gennem
-                    Ejendelsregisteret — omvendt kan de svare dig direkte,
-                    hvis de vil.
+                    Ejendelsregisteret — omvendt kan de svare dig direkte, hvis
+                    de vil.
                   </p>
                 </div>
               )}

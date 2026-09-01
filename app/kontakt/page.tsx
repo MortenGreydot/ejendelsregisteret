@@ -14,7 +14,7 @@ export default function ContactPage() {
     <>
       <Navbar />
       <main className="flex-1 bg-mist">
-        <div className="mx-auto max-w-lg px-6 py-20">
+        <div className="mx-auto max-w-lg px-6 py-8">
           <h1 className="text-center font-display text-[36px] font-normal text-navy">
             Kontakt
           </h1>

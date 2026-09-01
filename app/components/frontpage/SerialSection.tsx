@@ -1,7 +1,7 @@
 export function SerialSection() {
   return (
     <section className="bg-white">
-      <div className="mx-auto grid max-w-6xl items-center gap-14 px-6 py-24 lg:grid-cols-2">
+      <div className="mx-auto grid max-w-6xl items-center gap-14 px-6 py-16 lg:grid-cols-2">
         <div>
           <p className="text-[12px] font-medium uppercase tracking-[0.22em] text-muted">
             Serienummer&nbsp;&nbsp; Dokumentation&nbsp;&nbsp; Ejerskab

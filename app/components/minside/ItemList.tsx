@@ -310,7 +310,7 @@ export function ItemList({
               </span>
 
               <div className="min-w-0 flex-1">
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                   <div className="min-w-0">
                     <p className="font-display text-[18px] font-bold text-navy">
                       {item.name}
@@ -321,13 +321,13 @@ export function ItemList({
                     </p>
                   </div>
 
-                  <div className="shrink-0 text-right">
+                  <div className="shrink-0 sm:text-right">
                     <span
                       className={`inline-block rounded-sm px-2 py-1 text-[12px] font-semibold ${style.badge}`}
                     >
                       {style.label}
                     </span>
-                    <p className="mt-1.5 text-[12px] text-muted">
+                    <p className="mt-1 text-[12px] text-muted sm:mt-1.5">
                       Tilføjet {item.created_at.slice(0, 10)}
                     </p>
                   </div>
@@ -372,7 +372,7 @@ export function ItemList({
                   />
                 )}
 
-                <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line pt-3 text-[13px]">
+                <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-0.5 border-t border-line pt-2 text-[13px] [&_button]:py-2 [&_a]:py-2">
                   <button
                     type="button"
                     onClick={() => toggle(item.id)}
