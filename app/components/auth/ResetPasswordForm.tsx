@@ -1,6 +1,6 @@
 "use client";
 
-import { ShieldCheck, TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -113,7 +113,10 @@ export function ResetPasswordForm() {
   if (phase === "ugyldig") {
     return (
       <div className="rounded-sm border border-line bg-white px-6 py-10 text-center">
-        <TriangleAlert className="mx-auto size-7 text-orange" strokeWidth={1.75} />
+        <TriangleAlert
+          className="mx-auto size-7 text-orange"
+          strokeWidth={1.75}
+        />
         <p className="mt-4 font-display text-[21px] text-navy">
           Linket virker ikke længere
         </p>
@@ -134,7 +137,6 @@ export function ResetPasswordForm() {
   if (phase === "gemt") {
     return (
       <div className="rounded-sm border border-line bg-white px-6 py-10 text-center">
-        <ShieldCheck className="mx-auto size-7 text-emerald-600" strokeWidth={1.75} />
         <p className="mt-4 font-display text-[21px] text-navy">
           Adgangskoden er ændret
         </p>

@@ -27,13 +27,6 @@ export const LEGAL_PAGES = [
   { label: "Cookiepolitik", href: "/cookiepolitik" },
 ] as const;
 
-/**
- * Footerens navigation.
- *
- * Ikke det samme som SECTIONS i lib/nav.ts: den øverste bjælke er til at
- * skifte mellem sider undervejs, footeren er der man leder når man er nået
- * til bunden uden at finde det man søgte. Derfor er "Bliv medlem" med her.
- */
 export const FOOTER_NAV = [
   { label: "Forside", href: "/" },
   { label: "Slå serienummer op", href: "/serienummer" },

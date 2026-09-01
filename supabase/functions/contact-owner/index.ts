@@ -22,10 +22,27 @@ import { getRecipient } from "../_shared/recipient.ts";
  *
  * Endpointet svarer ens uanset om ejendelen findes eller ej. Ellers kunne
  * man bruge det til at afprøve om et vilkårligt item-id eksisterer.
+ *
+ * Svaret har to felter, og forskellen betyder noget:
+ *
+ *   sent      — vi har taget imod beskeden og mistet den ikke
+ *   forwarded — ejerens mail kom faktisk afsted
+ *
+ * Tidligere fandtes kun `sent`, og den var true så snart vores egen kopi
+ * var afsted. Finderen fik altså "vi har givet den videre til ejeren" i
+ * tilfælde hvor ejeren aldrig hørte fra os. Det løfte skal kun gives når
+ * det holder.
  */
 
 /** Skal matche HONEYPOT i ContactOwner.tsx. */
-const HONEYPOT = "website";
+//
+// Feltet hed "website" indtil 2026-09-01. Det var et uheldigt valg: både
+// browserens autofyld og enhver adgangskodemanager genkender "website" som
+// URL-feltet på et login og udfylder det af sig selv. Så snart en finder
+// lod sin manager udfylde navn og mail, blev fælden udløst — og fordi en
+// udløst fælde svarer "sendt" uden at sende noget, forsvandt beskeden
+// lydløst. Navnet skal derfor være et som ingen autofyld-heuristik kender.
+const HONEYPOT = "besked_ref";
 
 const LIMITS = {
   name: 100,
@@ -34,8 +51,15 @@ const LIMITS = {
   message: 3000,
 } as const;
 
-/** Færre end kontaktformularen: her rammer beskeden en anden borgers indbakke. */
-const MAX_PER_HOUR = 3;
+/**
+ * Færre end kontaktformularen: her rammer beskeden en anden borgers indbakke.
+ *
+ * Loftet var 3, og det var for lavt. Det tæller pr. IP-adresse, og en
+ * husstand, et kontor eller et mobilnet deler én udadtil — tre finder-
+ * beskeder fra samme netværk på en time er ikke misbrug. Ti er stadig langt
+ * under hvad en bot ville sende, og langt over hvad et menneske gør.
+ */
+const MAX_PER_HOUR = 10;
 
 type Admin = SupabaseClient;
 
@@ -56,8 +80,11 @@ export default {
     }
 
     // Botten skal tro den slap igennem, så den ikke opdager fælden.
+    // Logges, fordi det ellers er den ene udgang hvor både finder og ejer
+    // står tilbage uden noget, uden at nogen kan se det er sket.
     if (text(body[HONEYPOT]) !== "") {
-      return Response.json({ sent: true });
+      console.warn("contact-owner: honeypot udløst, beskeden droppes");
+      return Response.json({ sent: true, forwarded: true });
     }
 
     const itemId = text(body.itemId);
@@ -90,17 +117,31 @@ export default {
       );
     }
 
-    const { data: item } = await admin
+    const { data: item, error: lookupError } = await admin
       .from("items")
       .select("id, name, status, user_id")
       .eq("id", itemId)
       .maybeSingle();
 
+    // Fejlen SKAL læses. Uden den kunne en databasefejl ikke skelnes fra
+    // "ejendelen findes ikke", og svaret nedenfor ville sende finderen
+    // videre med en kvittering på en besked der aldrig blev til noget.
+    if (lookupError) {
+      console.error("contact-owner: opslaget af ejendelen fejlede:", lookupError);
+      return Response.json(
+        {
+          error:
+            "Vi kunne ikke slå ejendelen op lige nu. Prøv igen om lidt, eller skriv til kontakt@ejendelsregisteret.dk.",
+        },
+        { status: 502 },
+      );
+    }
+
     // Findes ejendelen ikke, svarer vi som om alt gik godt. Et ærligt svar
     // ville gøre endpointet til et værktøj til at afprøve item-id'er.
     if (!item) {
       console.warn("contact-owner: ukendt ejendel:", itemId);
-      return Response.json({ sent: true });
+      return Response.json({ sent: true, forwarded: true });
     }
 
     const owner = item.user_id ? await getRecipient(admin, item.user_id) : null;
@@ -116,14 +157,18 @@ export default {
 
     // Gemmes før afsendelsen. Fejler mailen, skal henvendelsen stadig
     // findes — så kan vi give den videre i hånden frem for at tabe den.
-    const { error: saveError } = await admin.from("contact_requests").insert({
-      item_id: item.id,
-      owner_id: item.user_id,
-      finder_name: name,
-      finder_email: email,
-      finder_phone: phone || null,
-      message,
-    });
+    const { data: saved, error: saveError } = await admin
+      .from("contact_requests")
+      .insert({
+        item_id: item.id,
+        owner_id: item.user_id,
+        finder_name: name,
+        finder_email: email,
+        finder_phone: phone || null,
+        message,
+      })
+      .select("id")
+      .maybeSingle();
 
     if (saveError) {
       console.error("contact-owner: kunne ikke gemme henvendelsen:", saveError);
@@ -137,8 +182,28 @@ export default {
       ? await ownerContacted(owner.email, owner.name, request)
       : { ok: false, error: "ejeren har ingen mailadresse" };
 
-    if (!copy.ok && !delivered.ok) {
-      console.error("contact-owner: ingen mails kom afsted:", copy.error);
+    // Udfaldet skrives på rækken, så de henvendelser der mangler at blive
+    // givet videre kan findes med en enkelt forespørgsel.
+    if (saved?.id) {
+      const { error: markError } = await admin
+        .from("contact_requests")
+        .update(
+          delivered.ok
+            ? { delivered_at: new Date().toISOString(), delivery_error: null }
+            : { delivery_error: delivered.error ?? "ukendt fejl" },
+        )
+        .eq("id", saved.id);
+
+      if (markError) {
+        console.error("contact-owner: kunne ikke skrive udfaldet:", markError);
+      }
+    }
+
+    // Alt fejlede: hverken gemt hos os, kopi eller ejermail. Så er beskeden
+    // væk, og det skal finderen have at vide mens de stadig har den i
+    // skrivefeltet.
+    if (saveError && !copy.ok && !delivered.ok) {
+      console.error("contact-owner: intet lykkedes:", copy.error, delivered.error);
       return Response.json(
         {
           error:
@@ -148,14 +213,14 @@ export default {
       );
     }
 
-    // Nåede kopien frem men ikke ejerens mail, er beskeden ikke tabt — vi
-    // har den, og kan give den videre manuelt. Finderen skal ikke sendes
-    // ud i at skrive den samme besked igen.
+    // Nåede beskeden ikke ejeren, er den ikke tabt — den ligger hos os, og
+    // vi kan give den videre manuelt. Finderen skal ikke skrive den igen,
+    // men skal heller ikke tro at ejeren har den.
     if (!delivered.ok) {
       console.error("contact-owner: ejerens mail fejlede:", delivered.error);
     }
 
-    return Response.json({ sent: true });
+    return Response.json({ sent: true, forwarded: delivered.ok });
   }),
 };
 

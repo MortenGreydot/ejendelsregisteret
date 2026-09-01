@@ -416,3 +416,39 @@ supabase db advisors
 
 Den rigtige test er dog stadig manuel: log ind som bruger A, prøv at hente
 bruger B's `items` og `payments`, og bekræft at der kommer nul rækker tilbage.
+
+---
+
+## 10. Nye tabeller: revoke skal gentages
+
+`revoke all on all tables in schema public` i sektion 0 rammer kun de
+tabeller der findes i det øjeblik migrationen kører. Enhver tabel oprettet
+bagefter får Supabases standardrettigheder til `anon` og `authenticated` —
+alle syv, inklusive `TRUNCATE`.
+
+**RLS stopper ikke en TRUNCATE.** Policies filtrerer rækker; TRUNCATE tømmer
+tabellen uden at røre en eneste række-check. Et manglende grant er det eneste
+der holder den ude.
+
+Det skete for `contact_requests`, `contact_rate_limit`, `email_log` og
+`item_serials`, som alle blev oprettet efter sektion 0 og lå med fulde
+rettigheder til `anon` indtil `20260901120000`. Skriv derfor altid revoke og
+de præcise grants ind i samme migration som `create table`:
+
+```sql
+revoke all on public.min_nye_tabel from anon, authenticated;
+-- og kun det brugeren faktisk skal kunne:
+grant select, insert, update, delete on public.min_nye_tabel to authenticated;
+```
+
+Find dem der er sluppet igennem:
+
+```sql
+select table_name, grantee, string_agg(privilege_type, ',' order by privilege_type)
+from information_schema.role_table_grants
+where table_schema = 'public' and grantee in ('anon', 'authenticated')
+group by 1, 2
+order by 1, 2;
+```
+
+Står der `TRUNCATE` eller `REFERENCES` i listen, er tabellen ikke sat op i hånden.

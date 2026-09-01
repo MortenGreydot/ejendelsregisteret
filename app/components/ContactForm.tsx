@@ -11,8 +11,17 @@ const fieldClass =
 
 const labelClass = "block text-[14px] font-semibold text-navy";
 
-// Navnet skal se tillokkende ud for en bot, men ikke kollidere med et rigtigt felt.
-const HONEYPOT_FIELD = "website";
+/**
+ * Navnet skal se tillokkende ud for en bot, men ikke kollidere med et
+ * rigtigt felt — og heller ikke med et felt browseren selv vil udfylde.
+ *
+ * Feltet hed "website" indtil 2026-09-01. Både autofyld og enhver
+ * adgangskodemanager genkender "website" som URL-feltet på et login og
+ * udfylder det uden at spørge. Lod den besøgende sin manager udfylde navn
+ * og mail, røg fælden med, og formularen kvitterede med "tak for din
+ * besked" uden at sende noget. Se ContactOwner.tsx — samme fejl stod der.
+ */
+const HONEYPOT_FIELD = "kontakt_ref";
 
 export function ContactForm() {
   const { isErhverv } = useAudience();
@@ -97,13 +106,22 @@ export function ContactForm() {
         aria-hidden="true"
         className="absolute left-[-9999px] h-px w-px overflow-hidden"
       >
-        <label htmlFor="kontakt-website">Website</label>
+        <label htmlFor="kontakt-ref">Reference</label>
+        {/*
+          autoComplete="off" alene er ikke nok — adgangskodemanagere
+          ignorerer den. data-1p-ignore (1Password), data-lpignore
+          (LastPass) og data-form-type="other" (Dashlane, Bitwarden) er de
+          attributter de faktisk retter sig efter.
+        */}
         <input
-          id="kontakt-website"
+          id="kontakt-ref"
           name={HONEYPOT_FIELD}
           type="text"
           tabIndex={-1}
           autoComplete="off"
+          data-1p-ignore
+          data-lpignore="true"
+          data-form-type="other"
         />
       </div>
 

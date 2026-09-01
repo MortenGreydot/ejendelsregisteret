@@ -133,11 +133,7 @@ export function MatchCard({
         )}
       </dl>
 
-      <ContactOwner
-        itemId={match.item_id}
-        itemName={match.name}
-        status={match.status}
-      />
+      <ContactOwner itemId={match.item_id} itemName={match.name} />
 
       <p className="border-t border-line bg-mist px-6 py-4 text-[13px] leading-relaxed text-muted">
         Sammenlign oplysningerne med den genstand du har. Stemmer de ikke, er

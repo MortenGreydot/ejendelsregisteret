@@ -17,8 +17,15 @@ import { contactMessage } from "../_shared/mails.ts";
  *   - HTML escapes i skabelonen, så beskeden ikke kan injicere markup
  */
 
-/** Skal matche HONEYPOT_FIELD i ContactForm.tsx. */
-const HONEYPOT = "website";
+/**
+ * Skal matche HONEYPOT_FIELD i ContactForm.tsx.
+ *
+ * Hed "website" indtil 2026-09-01. Browserens autofyld og adgangskode-
+ * managere genkender det navn som URL-feltet på et login og udfylder det af
+ * sig selv — og en udløst fælde svarer "sendt" uden at sende noget. Navnet
+ * skal være et ingen autofyld-heuristik kender.
+ */
+const HONEYPOT = "kontakt_ref";
 
 const LIMITS = {
   name: 100,
@@ -46,7 +53,12 @@ export default {
 
     // Botten skal tro den slap igennem. Svarer vi med en fejl, kan den se
     // at fælden findes og prøve igen uden at udfylde feltet.
+    //
+    // Logges, fordi det er den ene udgang hvor beskeden forsvinder uden at
+    // nogen kan se det. Bliver linjen her hyppig, er fælden gået i gang med
+    // at fange mennesker frem for bots.
     if (text(body[HONEYPOT]) !== "") {
+      console.warn("send-contact: honeypot udløst, beskeden droppes");
       return Response.json({ sent: true });
     }
 

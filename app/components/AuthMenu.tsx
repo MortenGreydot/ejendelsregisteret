@@ -31,7 +31,7 @@ export function AuthMenu({ initialSignedIn }: { initialSignedIn: boolean }) {
           href="/bliv-medlem"
           className="rounded-sm bg-orange px-5 py-1.5 text-[15px] font-medium text-white transition-colors hover:bg-orange-dark"
         >
-          Bliv medlem
+          Opret konto
         </Link>
       </>
     );

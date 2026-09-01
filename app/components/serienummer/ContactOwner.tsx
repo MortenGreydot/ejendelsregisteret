@@ -1,12 +1,24 @@
 "use client";
 
-import { Mail, ShieldCheck } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useState } from "react";
 
 import { invokeFunction } from "@/lib/functions";
 
-/** Skal matche HONEYPOT i contact-owner/index.ts. */
-const HONEYPOT = "website";
+/**
+ * Skal matche HONEYPOT i contact-owner/index.ts.
+ *
+ * Feltet hed "website" indtil 2026-09-01, og det åd beskeder. Både
+ * browserens autofyld og enhver adgangskodemanager genkender "website" som
+ * URL-feltet på et login og udfylder det uden at spørge. Udfyldte finderen
+ * navn og mail med sin manager, røg fælden med — og en udløst fælde svarer
+ * "sendt" uden at sende noget. Beskeden forsvandt lydløst, og både finder
+ * og ejer stod tilbage uden at vide det.
+ *
+ * Navnet skal derfor være et ingen autofyld-heuristik kender. Attributterne
+ * på selve feltet nedenfor gør resten af arbejdet.
+ */
+const HONEYPOT = "besked_ref";
 
 const fieldClass =
   "w-full rounded-sm border border-line bg-white px-3.5 text-[15px] text-navy placeholder:text-muted focus:border-orange focus:outline-none focus:ring-1 focus:ring-orange disabled:opacity-60";
@@ -28,15 +40,19 @@ const labelClass = "block text-[14px] font-semibold text-navy";
 export function ContactOwner({
   itemId,
   itemName,
-  status,
 }: {
   itemId: string;
   itemName: string;
-  status: "registered" | "lost" | "stolen";
 }) {
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
-  const [sent, setSent] = useState(false);
+  /**
+   * null = ikke sendt endnu. Ellers om ejerens mail faktisk kom afsted.
+   *
+   * To tilstande frem for én, fordi kvitteringen lover noget forskelligt:
+   * "vi har givet den videre til ejeren" må kun stå der når det passer.
+   */
+  const [forwarded, setForwarded] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -46,17 +62,17 @@ export function ContactOwner({
 
     const form = new FormData(event.currentTarget);
 
-    const { data, error: callError } = await invokeFunction<{ sent?: boolean }>(
-      "contact-owner",
-      {
-        itemId,
-        name: String(form.get("navn") ?? ""),
-        email: String(form.get("email") ?? ""),
-        phone: String(form.get("telefon") ?? ""),
-        message: String(form.get("besked") ?? ""),
-        [HONEYPOT]: String(form.get(HONEYPOT) ?? ""),
-      },
-    );
+    const { data, error: callError } = await invokeFunction<{
+      sent?: boolean;
+      forwarded?: boolean;
+    }>("contact-owner", {
+      itemId,
+      name: String(form.get("navn") ?? ""),
+      email: String(form.get("email") ?? ""),
+      phone: String(form.get("telefon") ?? ""),
+      message: String(form.get("besked") ?? ""),
+      [HONEYPOT]: String(form.get(HONEYPOT) ?? ""),
+    });
 
     setPending(false);
 
@@ -68,23 +84,30 @@ export function ContactOwner({
       return;
     }
 
-    setSent(true);
+    setForwarded(data.forwarded !== false);
   }
 
-  if (sent) {
+  if (forwarded !== null) {
     return (
       <div className="border-t border-line bg-emerald-50/60 px-6 py-6 text-center">
-        <ShieldCheck
-          className="mx-auto size-6 text-emerald-600"
-          strokeWidth={2}
-        />
         <p className="mt-3 font-display text-[19px] text-navy">
-          Din besked er sendt
+          {forwarded ? "Din besked er sendt" : "Vi har modtaget din besked"}
         </p>
         <p className="mx-auto mt-1.5 max-w-md text-[14px] leading-relaxed text-body">
-          Vi har givet den videre til ejeren sammen med din mailadresse, så de
-          kan svare dig direkte. Du har ikke fået deres, så vil du skrive igen,
-          går det gennem os.
+          {forwarded ? (
+            <>
+              Vi har givet den videre til ejeren sammen med din mailadresse, så
+              de kan svare dig direkte. Du har ikke fået deres, så vil du skrive
+              igen, går det gennem os.
+            </>
+          ) : (
+            <>
+              Vi kunne ikke få den frem til ejeren automatisk. Beskeden ligger
+              hos os, og vi giver den videre i hånden — du behøver ikke skrive
+              den igen. Haster det, kan du skrive til
+              kontakt@ejendelsregisteret.dk.
+            </>
+          )}
         </p>
       </div>
     );
@@ -126,13 +149,22 @@ export function ContactOwner({
           aria-hidden="true"
           className="absolute left-[-9999px] h-px w-px overflow-hidden"
         >
-          <label htmlFor="ejer-website">Website</label>
+          <label htmlFor="ejer-ref">Reference</label>
+          {/*
+            autoComplete="off" alene er ikke nok — adgangskodemanagere
+            ignorerer den. data-1p-ignore (1Password), data-lpignore
+            (LastPass) og data-form-type="other" (Dashlane, Bitwarden) er de
+            attributter de faktisk retter sig efter.
+          */}
           <input
-            id="ejer-website"
+            id="ejer-ref"
             name={HONEYPOT}
             type="text"
             tabIndex={-1}
             autoComplete="off"
+            data-1p-ignore
+            data-lpignore="true"
+            data-form-type="other"
           />
         </div>
 
