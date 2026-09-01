@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { CircleCheck, SearchX, ShieldAlert, TriangleAlert } from "lucide-react";
-import Image from "next/image";
+import { SearchX, TriangleAlert } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
 
 import { Navbar } from "../components/Navbar";
-import { ContactOwner } from "../components/serienummer/ContactOwner";
+import { MatchCard, type Match } from "../components/serienummer/MatchCard";
 
 export const metadata: Metadata = {
   title: "Serienummer — Ejendelsregisteret",
@@ -28,20 +27,6 @@ const USES = [
   },
 ];
 
-type Match = {
-  item_id: string;
-  name: string;
-  description: string | null;
-  status: "registered" | "lost" | "stolen";
-  brand: string | null;
-  category: string | null;
-  status_changed_at: string | null;
-  image_paths: string[];
-};
-
-const dk = (iso: string | null) =>
-  iso ? new Date(iso).toLocaleDateString("da-DK", { dateStyle: "long" }) : "";
-
 /** Søg på serienummer */
 export default async function SerialLookupPage({
   searchParams,
@@ -49,8 +34,9 @@ export default async function SerialLookupPage({
   const params = await searchParams;
   const query = typeof params.q === "string" ? params.q.trim() : "";
 
-  let match: Match | null = null;
-  let imageUrls: string[] = [];
+  let matches: Match[] = [];
+  /** Billed-URL'er pr. ejendel. Bucket'en er public, så de kan bygges direkte. */
+  let imageUrls: Record<string, string[]> = {};
   // Skal holdes adskilt fra "ingen træffer". Fejler opslaget, må vi ikke
   // svare "ikke registreret" — så ville en finder få at vide at genstanden
   // er fri, fordi vores database var nede.
@@ -69,12 +55,19 @@ export default async function SerialLookupPage({
       lookupFailed = true;
     }
 
-    match = (data as Match[] | null)?.[0] ?? null;
+    // Alle træffere, ikke kun den første. Databasen sorterer stjålet og
+    // savnet øverst, så det vigtigste står forrest.
+    matches = (data as Match[] | null) ?? [];
 
-    // Bucket'en er public, så URL'erne kan bygges uden signering.
-    imageUrls = (match?.image_paths ?? []).map(
-      (path) =>
-        supabase.storage.from("item-images").getPublicUrl(path).data.publicUrl,
+    imageUrls = Object.fromEntries(
+      matches.map((m) => [
+        m.item_id,
+        m.image_paths.map(
+          (path) =>
+            supabase.storage.from("item-images").getPublicUrl(path).data
+              .publicUrl,
+        ),
+      ]),
     );
   }
 
@@ -149,7 +142,7 @@ export default async function SerialLookupPage({
                     serienummeret er ukendt. Prøv igen om et øjeblik.
                   </p>
                 </div>
-              ) : !match ? (
+              ) : matches.length === 0 ? (
                 <div className="rounded-sm border border-line bg-white p-8 text-center">
                   <SearchX
                     className="mx-auto size-8 text-muted"
@@ -166,127 +159,32 @@ export default async function SerialLookupPage({
                   </p>
                 </div>
               ) : (
-                <div className="overflow-hidden rounded-sm border border-line bg-white">
-                  {match.status === "registered" && (
-                    <div className="flex gap-4 p-6">
-                      <CircleCheck
-                        className="mt-0.5 size-6 shrink-0 text-emerald-600"
-                        strokeWidth={2}
-                      />
-                      <div>
-                        <p className="font-display text-[21px] text-navy">
-                          Ejendelen er registreret
-                        </p>
-                        <p className="mt-1.5 text-[14.5px] leading-relaxed text-body">
-                          Serienummeret findes i Ejendelsregisteret og er ikke
-                          meldt savnet eller stjålet.
-                        </p>
-                      </div>
-                    </div>
+                <div className="space-y-4">
+                  {/*
+                    Flere træffere er ikke en fejl. Serienumre er ikke
+                    globalt unikke, så finderen skal selv kunne se hvilken
+                    af dem der matcher genstanden i hånden.
+                  */}
+                  {matches.length > 1 && (
+                    <p className="rounded-sm border border-line bg-white px-5 py-4 text-[14px] leading-relaxed text-body">
+                      <span className="font-semibold text-navy">
+                        {matches.length} ejendele
+                      </span>{" "}
+                      er registreret med serienummeret{" "}
+                      <span className="font-mono text-navy">{query}</span>.
+                      Serienumre går igen på tværs af mærker og produkter —
+                      sammenlign oplysningerne nedenfor med det du har i hånden.
+                    </p>
                   )}
 
-                  {match.status !== "registered" && (
-                    <div
-                      className={`flex gap-4 p-6 ${
-                        match.status === "stolen"
-                          ? "bg-red-50/60"
-                          : "bg-amber-50/60"
-                      }`}
-                    >
-                      {match.status === "stolen" ? (
-                        <ShieldAlert
-                          className="mt-0.5 size-6 shrink-0 text-red-600"
-                          strokeWidth={2}
-                        />
-                      ) : (
-                        <TriangleAlert
-                          className="mt-0.5 size-6 shrink-0 text-amber-600"
-                          strokeWidth={2}
-                        />
-                      )}
-                      <div>
-                        <p className="font-display text-[21px] text-navy">
-                          {match.status === "stolen"
-                            ? "Meldt stjålet"
-                            : "Meldt savnet"}
-                        </p>
-                        <p className="mt-1.5 text-[14.5px] leading-relaxed text-body">
-                          Ejeren har markeret denne ejendel som{" "}
-                          {match.status === "stolen" ? "stjålet" : "savnet"}
-                          {match.status_changed_at &&
-                            ` den ${dk(match.status_changed_at)}`}
-                          . Har du fundet den, kan du hjælpe ejeren med at få
-                          den tilbage.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {imageUrls.length > 0 && (
-                    <ul className="flex flex-wrap gap-3 border-t border-line px-6 py-5">
-                      {imageUrls.map((url, i) => (
-                        <li
-                          key={url}
-                          className="relative size-28 overflow-hidden rounded-sm bg-mist"
-                        >
-                          <Image
-                            src={url}
-                            alt={`${match.name} billede ${i + 1}`}
-                            fill
-                            sizes="112px"
-                            className="object-cover"
-                          />
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  <dl className="border-t border-line px-6 py-4 text-[14px]">
-                    <div className="flex gap-4 py-1">
-                      <dt className="w-28 shrink-0 text-muted">Ejendel</dt>
-                      <dd className="font-semibold text-navy">{match.name}</dd>
-                    </div>
-                    <div className="flex gap-4 py-1">
-                      <dt className="w-28 shrink-0 text-muted">Serienummer</dt>
-                      <dd className="font-mono text-navy">{query}</dd>
-                    </div>
-                    {match.brand && (
-                      <div className="flex gap-4 py-1">
-                        <dt className="w-28 shrink-0 text-muted">Mærke</dt>
-                        <dd className="text-navy">{match.brand}</dd>
-                      </div>
-                    )}
-                    {match.category && (
-                      <div className="flex gap-4 py-1">
-                        <dt className="w-28 shrink-0 text-muted">Kategori</dt>
-                        <dd className="text-navy">{match.category}</dd>
-                      </div>
-                    )}
-                    {match.description && (
-                      <div className="flex gap-4 py-1">
-                        <dt className="w-28 shrink-0 text-muted">
-                          Beskrivelse
-                        </dt>
-                        <dd className="text-navy">{match.description}</dd>
-                      </div>
-                    )}
-                  </dl>
-
-                  <ContactOwner
-                    itemId={match.item_id}
-                    itemName={match.name}
-                    status={match.status}
-                  />
-
-                  <p className="border-t border-line bg-mist px-6 py-4 text-[13px] leading-relaxed text-muted">
-                    Sammenlign oplysningerne med den genstand du har. Stemmer de
-                    ikke, er det ikke den samme ejendel.
-                    <br />
-                    Vi viser hverken ejerens navn, kontaktoplysninger eller
-                    kvitteringer. Du kan kun skrive til dem gennem
-                    Ejendelsregisteret — omvendt kan de svare dig direkte, hvis
-                    de vil.
-                  </p>
+                  {matches.map((m) => (
+                    <MatchCard
+                      key={m.item_id}
+                      match={m}
+                      imageUrls={imageUrls[m.item_id] ?? []}
+                      query={query}
+                    />
+                  ))}
                 </div>
               )}
             </div>
