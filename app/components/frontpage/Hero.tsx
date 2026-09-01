@@ -13,19 +13,25 @@ export function Hero({ plan }: { plan: Plan }) {
   return (
     <section className="photo-hero">
       <div className="mx-auto max-w-3xl px-6 py-24 text-center">
+        <p className="mb-2 font-display text-[20px] text-white/60">
+          Inventarlisten{" "}
+          <em className="font-accent pr-[0.14em] text-orange">en del af</em>{" "}
+          Ejendelsregisteret
+        </p>
+
         <p className="text-[13px] font-semibold uppercase tracking-[0.25em] text-orange">
           Dækker alt, over alt
         </p>
 
-        <h1 className="mt-5 font-display text-[46px] leading-[1.1] font-normal text-white sm:text-[56px]">
-          Bevis at dine ting er dine
+        <h1 className="mt-2 font-display text-[46px] leading-[1.1] font-normal text-white sm:text-[56px]">
+          Bevis at dine ting er
           <br />
-          <em className="font-accent text-orange">når det gælder</em>
+          <em className="font-accent text-orange"> dine</em>
         </h1>
 
         <p className="mx-auto mt-6 max-w-xl text-[17px] leading-[1.6] text-white/85">
-          Serienummer, kvittering og billeder samlet ét sted. Klar til
-          forsikringen den dag noget bliver væk, stjålet eller brændt.
+          Serienummer, kvittering og billeder samlet ét sted. Opret dig og dine
+          ting, og se din inventarliste på Min side.
         </p>
 
         <ul className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[14px] text-white/70">
@@ -53,16 +59,12 @@ export function Hero({ plan }: { plan: Plan }) {
           </Link>
         </div>
 
-        {/* Prisen står med det samme. Skal man klikke sig frem til den,
-            klikker mange i stedet væk. */}
         <p className="mt-5 text-[13px] text-white/55">
           {plan.setupFee} kr. i oprettelse &middot; {plan.monthlyPrice} kr./md.
           &middot; {plan.includedItems} ejendele inkluderet &middot; opsig når
           som helst &middot; {vatLabel(plan)}
         </p>
 
-        {/* Finderen er ikke kunde og skal ikke igennem oprettelsen — men
-            det er ofte dem der lander her først. */}
         <p className="mt-10 border-t border-white/15 pt-6 text-[14px] text-white/60">
           Har du fundet noget?{" "}
           <Link
