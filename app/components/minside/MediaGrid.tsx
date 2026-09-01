@@ -14,7 +14,8 @@ const MAX_BYTES = 10 * 1024 * 1024;
 const IMAGE_ACCEPT = "image/png,image/jpeg,image/webp";
 const DOCUMENT_ACCEPT = `${IMAGE_ACCEPT},application/pdf`;
 
-const isImageFile = (name: string) => /\.(png|jpe?g|webp|gif)$/i.test(name.trim());
+const isImageFile = (name: string) =>
+  /\.(png|jpe?g|webp|gif)$/i.test(name.trim());
 
 const safeName = (name: string) => name.replace(/[^a-zA-Z0-9._-]/g, "_");
 
@@ -37,10 +38,8 @@ const DOCUMENT_FORMATS = "PNG, JPG, WEBP og PDF";
 
 const isHeic = (name: string) => /\.hei[cf]$/i.test(name.trim());
 
-
 const TILE =
-  "relative size-28 overflow-hidden rounded-sm border border-line bg-mist";
-
+  "relative size-36 overflow-hidden rounded-sm border border-line bg-mist";
 
 function AddTile({
   label,

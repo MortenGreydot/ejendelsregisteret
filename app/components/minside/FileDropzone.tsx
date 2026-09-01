@@ -9,10 +9,9 @@ const heicMessage = (formats: string) =>
 
 const isHeic = (name: string) => /\.hei[cf]$/i.test(name.trim());
 
-
 /** Samme flise som MediaGrid, så oprettelse og redigering ser ens ud. */
 const TILE =
-  "relative size-28 overflow-hidden rounded-sm border border-line bg-mist";
+  "relative size-36 overflow-hidden rounded-sm border border-line bg-mist";
 
 const isImageFile = (name: string) =>
   /\.(png|jpe?g|webp|gif)$/i.test(name.trim());
@@ -42,11 +41,7 @@ function ImagePreview({ file }: { file: File }) {
     // next/image kan ikke bruges her: kilden er en object-URL der først
     // findes efter mount, og den skal ikke gennem billedoptimeringen.
     // eslint-disable-next-line @next/next/no-img-element
-    <img
-      ref={imgRef}
-      alt={file.name}
-      className="size-full object-cover"
-    />
+    <img ref={imgRef} alt={file.name} className="size-full object-cover" />
   );
 }
 

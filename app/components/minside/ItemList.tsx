@@ -294,7 +294,8 @@ export function ItemList({
               </p>
             )}
 
-            <div className="flex gap-4 p-4">
+            {/* Hovedet: miniature ved siden af navn og status. */}
+            <div className="flex gap-4 px-4 pt-4">
               <span className="relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-mist text-muted">
                 {item.imageUrl ? (
                   <Image
@@ -316,8 +317,9 @@ export function ItemList({
                       {item.name}
                     </p>
                     <p className="mt-0.5 text-[13px] text-muted">
-                      {[item.brand, item.category].filter(Boolean).join(" · ") ||
-                        "—"}
+                      {[item.brand, item.category]
+                        .filter(Boolean)
+                        .join(" · ") || "—"}
                     </p>
                   </div>
 
@@ -345,101 +347,108 @@ export function ItemList({
                     ))}
                   </p>
                 )}
+              </div>
+            </div>
 
-                {loading === item.id && (
-                  <p className="mt-3 border-t border-line pt-3 text-[13px] text-muted">
-                    Henter detaljer…
-                  </p>
-                )}
+            {/*
+              Detaljer og handlinger står i fuld kortbredde, ikke i søjlen
+              ved siden af miniaturen. På en telefon er den søjle kun godt
+              200px bred, og så brækker felterne og handlingslinjen op i
+              flere linjer — mens der ligger en tom søjle under billedet.
+            */}
+            <div className="px-4 pb-4">
+              {loading === item.id && (
+                <p className="mt-3 border-t border-line pt-3 text-[13px] text-muted">
+                  Henter detaljer…
+                </p>
+              )}
 
-                {(isOpen || editing === item.id) && details[item.id] && (
-                  <ItemDetails
-                    item={item}
-                    userId={userId}
-                    detail={details[item.id]}
-                    categories={categories}
-                    editing={editing === item.id}
-                    onDone={() => setEditing(null)}
-                    onSaved={() => {
-                      setEditing(null);
-                      setOpen((prev) => {
-                        const next = new Set(prev);
-                        next.delete(item.id);
-                        return next;
-                      });
-                    }}
-                    onChanged={() => loadDetail(item.id, true)}
-                  />
-                )}
+              {(isOpen || editing === item.id) && details[item.id] && (
+                <ItemDetails
+                  item={item}
+                  userId={userId}
+                  detail={details[item.id]}
+                  categories={categories}
+                  editing={editing === item.id}
+                  onDone={() => setEditing(null)}
+                  onSaved={() => {
+                    setEditing(null);
+                    setOpen((prev) => {
+                      const next = new Set(prev);
+                      next.delete(item.id);
+                      return next;
+                    });
+                  }}
+                  onChanged={() => loadDetail(item.id, true)}
+                />
+              )}
 
-                <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-0.5 border-t border-line pt-2 text-[13px] [&_button]:py-2 [&_a]:py-2">
+              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-0.5 border-t border-line pt-2 text-[13px] [&_button]:py-2 [&_a]:py-2">
+                <button
+                  type="button"
+                  onClick={() => toggle(item.id)}
+                  className="inline-flex items-center gap-1 text-muted transition-colors hover:text-navy"
+                >
+                  {isOpen ? (
+                    <ChevronUp className="size-3.5" />
+                  ) : (
+                    <ChevronDown className="size-3.5" />
+                  )}
+                  {isOpen ? "Skjul" : "Vis detaljer"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => startEdit(item.id)}
+                  className="inline-flex items-center gap-1 font-semibold text-navy transition-colors hover:text-orange"
+                >
+                  <Pencil className="size-3.5" />
+                  {editing === item.id ? "Afslut redigering" : "Rediger"}
+                </button>
+
+                <span className="relative inline-flex pr-1.5">
                   <button
                     type="button"
-                    onClick={() => toggle(item.id)}
-                    className="inline-flex items-center gap-1 text-muted transition-colors hover:text-navy"
-                  >
-                    {isOpen ? (
-                      <ChevronUp className="size-3.5" />
-                    ) : (
-                      <ChevronDown className="size-3.5" />
-                    )}
-                    {isOpen ? "Skjul" : "Vis detaljer"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => startEdit(item.id)}
-                    className="inline-flex items-center gap-1 font-semibold text-navy transition-colors hover:text-orange"
-                  >
-                    <Pencil className="size-3.5" />
-                    {editing === item.id ? "Afslut redigering" : "Rediger"}
-                  </button>
-
-                  <span className="relative inline-flex pr-1.5">
-                    <button
-                      type="button"
-                      onClick={() => updateStatus(item)}
-                      disabled={busy === item.id}
-                      className="inline-flex items-center gap-1 text-muted transition-colors hover:text-navy disabled:opacity-40"
-                    >
-                      <ShieldAlert className="size-3.5" />
-                      Opdater status
-                    </button>
-                    <InfoHint title="Opdater status">
-                      Markér ejendelen som savnet eller stjålet. Statussen er
-                      synlig for politiet og for en finder der slår
-                      serienummeret op — så det er den du ændrer først, hvis
-                      noget bliver væk.
-                    </InfoHint>
-                  </span>
-
-                  <span className="relative inline-flex pr-1.5">
-                    <button
-                      type="button"
-                      disabled
-                      title="Ikke bygget endnu"
-                      className="inline-flex items-center gap-1 text-muted disabled:opacity-40"
-                    >
-                      <FileText className="size-3.5" />
-                      Bevis
-                    </button>
-                    <InfoHint title="Bevis">
-                      Dine kvitteringer, garantibeviser og forsikringspapirer
-                      for ejendelen. Det er dem du sender til forsikringen
-                      eller politiet som dokumentation for ejerskab.
-                    </InfoHint>
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={() => remove(item)}
+                    onClick={() => updateStatus(item)}
                     disabled={busy === item.id}
-                    className="ml-auto inline-flex items-center gap-1 text-red-600 transition-colors hover:text-red-700 disabled:opacity-40"
+                    className="inline-flex items-center gap-1 text-muted transition-colors hover:text-navy disabled:opacity-40"
                   >
-                    <Trash2 className="size-3.5" />
-                    Slet
+                    <ShieldAlert className="size-3.5" />
+                    Opdater status
                   </button>
-                </div>
+                  <InfoHint title="Opdater status">
+                    Markér ejendelen som savnet eller stjålet. Statussen er
+                    synlig for politiet og for en finder der slår serienummeret
+                    op — så det er den du ændrer først, hvis noget bliver væk.
+                  </InfoHint>
+                </span>
+
+                <span className="relative inline-flex pr-1.5">
+                  <button
+                    type="button"
+                    disabled
+                    title="Ikke bygget endnu"
+                    className="inline-flex items-center gap-1 text-muted disabled:opacity-40"
+                  >
+                    <FileText className="size-3.5" />
+                    Bevis
+                  </button>
+                  <InfoHint title="Bevis">
+                    Dine kvitteringer, garantibeviser og forsikringspapirer for
+                    ejendelen. Det er dem du sender til forsikringen eller
+                    politiet som dokumentation for ejerskab.
+                  </InfoHint>
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => remove(item)}
+                  disabled={busy === item.id}
+                  className="ml-auto inline-flex items-center gap-1 text-red-600 transition-colors hover:text-red-700 disabled:opacity-40"
+                >
+                  <Trash2 className="size-3.5" />
+                  Slet
+                </button>
               </div>
             </div>
           </li>
