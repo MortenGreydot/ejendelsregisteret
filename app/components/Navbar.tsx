@@ -1,4 +1,6 @@
 import Image from "next/image";
+import Link from "next/link";
+
 import { createClient } from "@/lib/supabase/server";
 
 import { AudienceSwitch } from "./AudienceSwitch";
@@ -17,14 +19,20 @@ export async function Navbar() {
       {/* Øverste bjælke */}
       <div className="bg-navy text-white">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-6 md:gap-8">
-          <div className="flex items-center gap-3">
+          {/* Hele mærket er hjem-linket. Folk klikker på logoet for at komme
+              til forsiden, og det gælder både billedet og navnet ved siden af. */}
+          <Link
+            href="/"
+            aria-label="Ejendelsregisteret — til forsiden"
+            className="flex items-center gap-3 rounded-sm transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange"
+          >
             {/* Logoet har selv en cirkel og en ring, så den tidligere
                 indpakning tegnede en ring uden om en ring. Størrelsen sættes
                 med className; width/height er dobbelt op, så mærket også er
                 skarpt på skærme med høj pixeltæthed. */}
             <Image
               src="/images/logo-ejendel.png"
-              alt="Ejendelsregisteret"
+              alt=""
               width={88}
               height={88}
               className="size-11 shrink-0"
@@ -37,7 +45,7 @@ export async function Navbar() {
                 Dækker alt &ndash; over alt
               </span>
             </span>
-          </div>
+          </Link>
 
           <AudienceSwitch />
 
