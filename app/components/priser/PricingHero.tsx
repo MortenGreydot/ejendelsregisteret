@@ -4,10 +4,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { invokeFunction } from "@/lib/functions";
-import { PLANS, STEPS, type PlanId } from "@/lib/plans";
+import { PLANS, steps, type PlanId } from "@/lib/plans";
 
 import type { SubscriptionStatus } from "@/lib/subscription";
 
+import { AcceptTerms, TERMS_REQUIRED } from "../legal/AcceptTerms";
 import { useAudience } from "../AudienceProvider";
 import { PlanCard } from "./PlanCard";
 
@@ -22,7 +23,17 @@ export function PricingHero({
   const { audience } = useAudience();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const plan = PLANS[audience];
+
+  /**
+   * Fluebenet vises kun når knappen faktisk fører til en betaling.
+   *
+   * Er man ikke logget ind, sender knappen videre til oprettelsen, og dér
+   * står feltet i forvejen. To flueben på vej til det samme køb ville se ud
+   * som om der blev spurgt om to forskellige ting.
+   */
+  const paysHere = signedIn && status !== "active";
 
   async function handleSelect(planId: PlanId) {
     // Uden en konto er der intet at betale for endnu. Send brugeren til
@@ -32,6 +43,11 @@ export function PricingHero({
       // Planen er allerede valgt her på siden, så oprettelsen skal ikke
       // spørge om det samme igen.
       router.push("/bliv-medlem?trin=konto");
+      return;
+    }
+
+    if (!acceptedTerms) {
+      setError(TERMS_REQUIRED);
       return;
     }
 
@@ -70,6 +86,16 @@ export function PricingHero({
           />
         </div>
 
+        {paysHere && (
+          <AcceptTerms
+            id="priser-betingelser"
+            checked={acceptedTerms}
+            onChange={setAcceptedTerms}
+            disabled={pending}
+            className="mx-auto mt-5 max-w-sm justify-center"
+          />
+        )}
+
         {error && (
           <p role="alert" className="mt-4 text-[14px] text-red-600">
             {error}
@@ -81,7 +107,7 @@ export function PricingHero({
         </h2>
 
         <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((step, index) => (
+          {steps(plan).map((step, index) => (
             <li
               key={step.title}
               className="rounded-sm border border-line bg-white px-4 py-6 text-center"

@@ -8,6 +8,8 @@ import type { PlanId } from "@/lib/plans";
 
 import type { SubscriptionStatus } from "@/lib/subscription";
 
+import { AcceptTerms, TERMS_REQUIRED } from "../legal/AcceptTerms";
+
 export type { SubscriptionStatus };
 
 /**
@@ -36,8 +38,10 @@ const MESSAGES: Record<
   },
   past_due: {
     title: "Din seneste betaling mislykkedes",
-    body: "Vi kunne ikke trække beløbet. Det skyldes oftest et udløbet kort eller manglende dækning. Dine ejendele er bevaret, men du kan ikke oprette nye.",
-    cta: "Prøv betalingen igen",
+    // Knappen fører til Stripes kundeportal, ikke til en ny betaling.
+    // Teksten skal sige det samme som knappen gør.
+    body: "Vi kunne ikke trække beløbet. Det skyldes oftest et udløbet kort eller manglende dækning. Opdatér dine betalingsoplysninger, så trækker vi beløbet igen. Dine ejendele er bevaret, men du kan ikke oprette nye imens.",
+    cta: "Opdatér betalingsoplysninger",
   },
   canceled: {
     title: "Dit medlemskab er opsagt",
@@ -65,22 +69,55 @@ export function PaymentNotice({
 }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   if (status === "active") return null;
 
   const message = MESSAGES[status ?? "none"];
 
+  /**
+   * To forskellige knapper, afhængigt af hvad der er galt.
+   *
+   * Ved past_due findes abonnementet allerede hos Stripe — det er kortet
+   * der har fejlet. Så skal kunden i Stripes kundeportal og rette
+   * betalingsoplysningerne på det abonnement de har. En ny checkout ville
+   * oprette et abonnement NUMMER TO ved siden af det gamle og trække
+   * penge to gange hver måned. create-checkout afviser det nu, men knappen
+   * skal først og fremmest føre det rigtige sted hen.
+   *
+   * I alle andre tilfælde — betaling aldrig gennemført, opsagt, udløbet —
+   * findes der intet levende abonnement, og en ny checkout er netop det
+   * rigtige.
+   */
+  const opdaterKort = status === "past_due";
+
   async function retry() {
+    // Fluebenet hører til et køb. At rette sit kort på et abonnement man
+    // allerede har, er ikke en ny aftale.
+    if (!opdaterKort && !acceptedTerms) {
+      setError(TERMS_REQUIRED);
+      return;
+    }
+
     setPending(true);
     setError(null);
 
-    const { data, error: callError } = await invokeFunction<{ url?: string }>(
-      "create-checkout",
-      { planId, cancelTo: "min-side" },
-    );
+    const { data, error: callError } = opdaterKort
+      ? await invokeFunction<{ url?: string }>("manage-subscription", {
+          action: "portal",
+        })
+      : await invokeFunction<{ url?: string }>("create-checkout", {
+          planId,
+          cancelTo: "min-side",
+        });
 
     if (callError || !data?.url) {
-      setError(callError ?? "Kunne ikke starte betalingen.");
+      setError(
+        callError ??
+          (opdaterKort
+            ? "Kunne ikke åbne betalingsoplysningerne."
+            : "Kunne ikke starte betalingen."),
+      );
       setPending(false);
       return;
     }
@@ -105,8 +142,20 @@ export function PaymentNotice({
             {message.body}
           </p>
 
+          {!opdaterKort && (
+            <AcceptTerms
+              id="minside-betingelser"
+              checked={acceptedTerms}
+              onChange={setAcceptedTerms}
+              disabled={pending}
+              className="mt-4"
+            />
+          )}
+
           {error && (
-            <p className="mt-2 text-[14px] text-red-600">{error}</p>
+            <p role="alert" className="mt-2 text-[14px] text-red-600">
+              {error}
+            </p>
           )}
 
           <button

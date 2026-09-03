@@ -6,9 +6,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { userMessage } from "@/lib/errors";
+import {
+  PASSWORD_HINT,
+  PASSWORD_MIN,
+  PASSWORD_MISMATCH,
+  validatePassword,
+} from "@/lib/password";
 import { createClient } from "@/lib/supabase/client";
-
-const MIN_LENGTH = 8;
 
 const fieldClass =
   "mt-2 h-11 w-full rounded-sm border border-line bg-white px-3.5 text-[15px] text-navy placeholder:text-muted focus:border-orange focus:outline-none focus:ring-1 focus:ring-orange disabled:opacity-60";
@@ -74,15 +78,17 @@ export function ResetPasswordForm() {
     const password = String(form.get("adgangskode") ?? "");
     const repeat = String(form.get("gentag") ?? "");
 
-    if (password.length < MIN_LENGTH) {
-      setError(
-        `Adgangskoden skal være mindst ${MIN_LENGTH} tegn. Flere ord i træk er både nemmere at huske og sværere at gætte.`,
-      );
+    // Samme regler som ved oprettelse. Ville nulstillingen tillade en
+    // svagere kode, kunne kravet omgås ved at oprette sig og straks
+    // nulstille.
+    const problem = validatePassword(password);
+    if (problem) {
+      setError(problem);
       return;
     }
 
     if (password !== repeat) {
-      setError("De to adgangskoder er ikke ens.");
+      setError(PASSWORD_MISMATCH);
       return;
     }
 
@@ -171,14 +177,13 @@ export function ResetPasswordForm() {
           type="password"
           autoComplete="new-password"
           required
+          minLength={PASSWORD_MIN}
           autoFocus
           disabled={pending}
           placeholder="••••••••"
           className={fieldClass}
         />
-        <p className="mt-1.5 text-[12.5px] text-muted">
-          Mindst {MIN_LENGTH} tegn.
-        </p>
+        <p className="mt-1.5 text-[12.5px] text-muted">{PASSWORD_HINT}</p>
       </div>
 
       <div className="mt-4">
@@ -194,6 +199,7 @@ export function ResetPasswordForm() {
           type="password"
           autoComplete="new-password"
           required
+          minLength={PASSWORD_MIN}
           disabled={pending}
           placeholder="••••••••"
           className={fieldClass}

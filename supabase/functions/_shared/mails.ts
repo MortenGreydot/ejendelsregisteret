@@ -35,7 +35,18 @@ export function membershipActive(to: string, name: string | null) {
   });
 }
 
-/** Kvittering. Sendes når en faktura er betalt. */
+/**
+ * Kvittering. Sendes når en faktura er betalt.
+ *
+ * Bevidst uden knap. En kvittering er ikke en opfordring til at gøre noget
+ * — den skal kunne gemmes, findes frem og læses igen om et år. Tidligere
+ * stod her både en knap til Min side og en sætning om at fakturaen lå hos
+ * Stripe, men der var intet Stripe-link på den side den førte til. Et løfte
+ * mailen ikke kunne holde.
+ *
+ * Sælger og CVR står i fodnoten, så mailen kan bruges som dokumentation.
+ * Den formelle faktura er stadig Stripes; denne her er kvitteringen.
+ */
 export function receipt(
   to: string,
   amount: number,
@@ -47,24 +58,33 @@ export function receipt(
     maximumFractionDigits: 2,
   });
 
+  const linjer = [
+    `<strong style="color:#1c2d4f;">Bel&oslash;b:</strong> ${kr} kr.`,
+    `<strong style="color:#1c2d4f;">Vedr&oslash;rer:</strong> ${
+      isFirstPayment
+        ? "Oprettelse og f&oslash;rste m&aring;ned"
+        : "Medlemskab, &eacute;n m&aring;ned"
+    }`,
+    ...(invoiceNumber
+      ? [`<strong style="color:#1c2d4f;">Fakturanummer:</strong> ${invoiceNumber}`]
+      : []),
+  ].join("<br>");
+
   return sendEmail({
     to,
     subject: `Kvittering fra Ejendelsregisteret, ${kr} kr.`,
-    heading: "Tak for din betaling",
-    preheader: `Vi har modtaget ${kr} kr.`,
+    heading: "Kvittering for dit køb",
+    preheader: `Vi har modtaget ${kr} kr. Gem denne mail som kvittering.`,
     paragraphs: [
-      `Vi har modtaget <strong style="color:#1c2d4f;">${kr} kr.</strong>${
-        isFirstPayment
-          ? " for oprettelse og f&oslash;rste m&aring;ned."
-          : " for din m&aring;nedlige betaling."
-      }`,
-      "Bel&oslash;bet er trukket p&aring; det kort du betalte med. Den fulde faktura finder du hos Stripe via linket nedenfor.",
+      `Tak for din betaling. Vi har modtaget <strong style="color:#1c2d4f;">${kr} kr.</strong>, trukket p&aring; det kort du betalte med.`,
+      linjer,
+      "Gem gerne denne mail. Den er din kvittering for k&oslash;bet.",
     ],
-    button: {
-      label: "Se dit medlemskab",
-      url: `${siteUrl()}/min-side?tab=profil`,
-    },
-    footnote: invoiceNumber ? `Fakturanummer: ${invoiceNumber}` : undefined,
+    // Samme stamdata som COMPANY i lib/legal.ts. Edge-koden kan ikke
+    // importere derfra — Next og Deno er hver sin runtime — så ændres CVR
+    // eller adresse, skal begge steder rettes.
+    footnote:
+      "Greydot &middot; CVR 34399131 &middot; J. Skjoldborgs Vej 57, 9230 &Aring;byh&oslash;j",
   });
 }
 
@@ -83,6 +103,42 @@ export function paymentFailed(to: string) {
     button: { label: "Opdatér betaling", url: `${siteUrl()}/min-side` },
     footnote:
       "Vi forsøger automatisk igen de kommende dage. Du behøver ikke gøre noget, hvis du allerede har opdateret dit kort.",
+  });
+}
+
+/**
+ * Afbrudt betaling. Kunden nåede til Stripe, men blev ikke færdig.
+ *
+ * Sendes IKKE til alle med status pending_activation. Enhver der trykker
+ * "gå til betaling" får den status et øjeblik — den sættes af
+ * create-checkout inden viderestillingen til Stripe, og webhooken hæver
+ * den til active når betalingen går igennem. Cronjobbet der udløser denne
+ * mail venter derfor en time og springer alle over der er nået at blive
+ * aktive. Se nudge_afbrudt_betaling() i migrationen.
+ *
+ * Tonen er bevidst uden pres: der er ikke trukket penge, og den der har
+ * fortrudt skal ikke føle sig rykket for noget.
+ */
+export function checkoutAbandoned(to: string, name: string | null) {
+  const greeting = name ? `${name.split(" ")[0]}, du` : "Du";
+
+  return sendEmail({
+    to,
+    subject: "Du blev ikke færdig med din betaling",
+    heading: `${greeting} mangler ét skridt.`,
+    preheader:
+      "Betalingen blev ikke gennemført. Der er ikke trukket penge — du kan gøre det færdigt når du vil.",
+    paragraphs: [
+      "Du gik i gang med at oprette dit medlemskab, men betalingen blev ikke gennemf&oslash;rt. <strong style=\"color:#1c2d4f;\">Der er ikke trukket nogen penge.</strong>",
+      "Vil du g&oslash;re det f&aelig;rdigt, tager det under et minut. Bagefter kan du registrere dine f&oslash;rste ejendele og have dokumentationen klar den dag noget bliver v&aelig;k.",
+    ],
+    button: {
+      label: "Færdiggør din betaling",
+      url: `${siteUrl()}/min-side`,
+    },
+    footnote:
+      "Har du fortrudt, kan du roligt se bort fra denne mail. Vi sender kun denne ene påmindelse.",
+    unsubscribe: true,
   });
 }
 
@@ -159,6 +215,7 @@ export function noItemsYet(to: string, name: string | null) {
       url: `${siteUrl()}/min-side`,
     },
     footnote: "Det tager to minutter, og du kan altid tilføje flere senere.",
+    unsubscribe: true,
   });
 }
 

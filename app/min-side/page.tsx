@@ -67,7 +67,7 @@ export default async function MyAccountPage({
   // afgør hvad der kommer med — ikke where-klausulerne alene.
   const [
     { data: profile },
-    { data: subscription },
+    { data: subscription, error: subscriptionError },
     { data: rawItems },
     { data: categories },
   ] = await Promise.all([
@@ -78,7 +78,7 @@ export default async function MyAccountPage({
       .maybeSingle(),
     supabase
       .from("subscriptions")
-      .select("status, monthly_price, included_items, current_period_end")
+      .select("status, monthly_price, included_items, current_period_end, cancel_at_period_end")
       .eq("user_id", userId)
       .maybeSingle(),
     supabase
@@ -89,6 +89,16 @@ export default async function MyAccountPage({
       .order("created_at", { ascending: false }),
     supabase.from("categories").select("id, name").order("name"),
   ]);
+
+  // Fejlen SKAL læses. Uden den kan et fejlet opslag ikke skelnes fra "ingen
+  // abonnementsrække", og siden fortæller så et betalende medlem at de ikke
+  // har et medlemskab — samtidig med at opsig- og genoptag-knappen forsvinder.
+  // Præcis det skete da cancel_at_period_end blev udrullet i frontenden før
+  // migrationen: PostgREST afviste hele forespørgslen på grund af den ene
+  // ukendte kolonne, og fejlen forsvandt lydløst.
+  if (subscriptionError) {
+    console.error("min-side: kunne ikke læse abonnement:", subscriptionError);
+  }
 
   const items: Item[] = (rawItems ?? []).map((row) => {
     const r = row as unknown as {
@@ -206,6 +216,7 @@ export default async function MyAccountPage({
                 }
                 nextPayment={dkDate(subscription?.current_period_end ?? null)}
                 hasSubscription={hasSubscription}
+                cancelAtPeriodEnd={subscription?.cancel_at_period_end ?? false}
                 itemCount={items.length}
               />
             }

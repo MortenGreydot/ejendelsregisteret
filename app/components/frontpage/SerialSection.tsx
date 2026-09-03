@@ -39,7 +39,7 @@ export function SerialSection() {
 
         {/* Foto med flydende kort */}
         <div className="relative">
-          <div className="photo-sofa aspect-[4/3] w-full rounded-sm" />
+          <div className="photo-cykel aspect-[4/3] w-full rounded-sm" />
         </div>
       </div>
     </section>

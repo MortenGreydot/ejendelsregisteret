@@ -11,6 +11,9 @@
 
 const FROM = "Ejendelsregisteret <info@ejendelsregisteret.dk>";
 
+/** Adressen i List-Unsubscribe. Skal være en postkasse der bliver læst. */
+const UNSUBSCRIBE = "kontakt@ejendelsregisteret.dk";
+
 const NAVY = "#1c2d4f";
 const ORANGE = "#d2802e";
 const BODY = "#4f5763";
@@ -127,6 +130,58 @@ function template({
 }
 
 /**
+ * Bygger tekstudgaven af mailen. (ren tekst)
+ *
+ * En mail der kun findes som HTML er et spamsignal i sig selv — både
+ * SpamAssassin og Gmail vægter det, fordi ægte afsendere sender begge dele
+ * og masseudsendere sjældent gider. Derfor følger en tekstudgave med hver
+ * eneste mail, bygget af det samme indhold så de to aldrig kan sige noget
+ * forskelligt.
+ *
+ * Knappen bliver til sin egen adresse skrevet ud. En tekstmail kan ikke
+ * have en knap, og en mail hvor handlingen kun findes i HTML-udgaven er
+ * ubrugelig for den der læser den anden.
+ */
+function plainText({
+  heading,
+  paragraphs,
+  button,
+  footnote,
+}: EmailContent): string {
+  const dele = [
+    stripHtml(heading),
+    ...paragraphs.map(stripHtml),
+    ...(button ? [`${stripHtml(button.label)}: ${button.url}`] : []),
+    ...(footnote ? [stripHtml(footnote)] : []),
+    "—\nEjendelsregisteret · ejendelsregisteret.dk\nDu modtager denne mail fordi du har en konto hos os.",
+  ];
+
+  return dele.filter(Boolean).join("\n\n");
+}
+
+/** HTML → læsbar tekst. Kun de entiteter vores egne skabeloner bruger. */
+function stripHtml(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&aelig;/g, "æ")
+    .replace(/&oslash;/g, "ø")
+    .replace(/&aring;/g, "å")
+    .replace(/&Aelig;/g, "Æ")
+    .replace(/&Oslash;/g, "Ø")
+    .replace(/&Aring;/g, "Å")
+    .replace(/&eacute;/g, "é")
+    .replace(/&middot;/g, "·")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    // &amp; til sidst, ellers ville den kunne genskabe en anden entitet.
+    .replace(/&amp;/g, "&")
+    .replace(/[ \t]+/g, " ")
+    .trim();
+}
+
+/**
  * Sender en mail. Kaster aldrig.
  *
  * Kaldes fra Stripe-webhooken, og dér må en mailfejl ikke vælte behandlingen:
@@ -142,6 +197,17 @@ export async function sendEmail(
     subject: string;
     /** Svaradresse. Bruges til kontaktformularen, så Svar går til afsenderen. */
     replyTo?: string;
+    /**
+     * Sæt på de mails vi selv finder på at sende — påmindelser og puf.
+     *
+     * Tilføjer List-Unsubscribe, som postkasserne kigger efter på alt der
+     * ikke er udløst af brugerens egen handling. Uden den ryger et puf let
+     * i spam; med den viser Gmail i stedet sin egen afmeldingsknap.
+     *
+     * Kvitteringer, velkomst og betalingsbeskeder skal IKKE have den: de er
+     * transaktionelle, og en afmeldingsknap på en kvittering er forkert.
+     */
+    unsubscribe?: boolean;
   },
 ): Promise<{ ok: boolean; error?: string }> {
   const key = Deno.env.get("RESEND_API_KEY");
@@ -162,7 +228,15 @@ export async function sendEmail(
         to: [options.to],
         subject: options.subject,
         ...(options.replyTo ? { reply_to: [options.replyTo] } : {}),
+        ...(options.unsubscribe
+          ? {
+              headers: {
+                "List-Unsubscribe": `<mailto:${UNSUBSCRIBE}?subject=Afmeld>`,
+              },
+            }
+          : {}),
         html: template(options),
+        text: plainText(options),
       }),
     });
 

@@ -3,6 +3,7 @@ import type { SupabaseClient } from "npm:@supabase/supabase-js";
 
 import {
   accountCreated,
+  checkoutAbandoned,
   firstItem,
   itemLimitReached,
   noItemsYet,
@@ -30,10 +31,18 @@ import { getRecipient } from "../_shared/recipient.ts";
  * databasen — de er nøgler, ikke variabelnavne.
  */
 
-/** Antal inkluderede ejendele. Skal matche PLANS i lib/plans.ts og triggeren. */
-const INCLUDED_ITEMS = 5;
-
-/** Stykpris for ejendele ud over de inkluderede, i kroner pr. måned. */
+/**
+ * Stykpris for ejendele ud over de inkluderede, i kroner pr. måned.
+ *
+ * Står som en konstant her, fordi prisen kun findes ét sted udenfor: som en
+ * graduated tiered price i Stripe. Databasen kender den ikke, og denne
+ * funktion kan ikke importere lib/plans.ts — Next-koden og edge-koden kører
+ * i hver sin runtime.
+ *
+ * Ændres prisen, skal den ændres i Stripe, i lib/plans.ts og her. Antallet
+ * af inkluderede ejendele skal derimod IKKE stå her; det hentes pr. kunde
+ * fra deres abonnement, se includedItems() nedenfor.
+ */
 const EXTRA_ITEM_PRICE = 2;
 
 /** De typer der kun må sendes én gang pr. bruger. */
@@ -42,6 +51,7 @@ const ONCE_ONLY = new Set([
   "foerste_ejendel",
   "graense_naaet",
   "ingen_ejendel_endnu",
+  "betaling_ikke_fuldfoert",
 ]);
 
 /** Service role-klienten fra ctx — omgår RLS. */
@@ -118,7 +128,7 @@ async function dispatch(
     case "graense_naaet":
       await itemLimitReached(
         recipient.email,
-        INCLUDED_ITEMS,
+        await includedItems(admin, userId),
         EXTRA_ITEM_PRICE,
       );
       return true;
@@ -127,9 +137,41 @@ async function dispatch(
       await noItemsYet(recipient.email, recipient.name);
       return true;
 
+    // Kun én gang pr. bruger, håndhævet af UNIQUE(user_id, kind) i
+    // email_log. En påmindelse om en betaling man bevidst har fortrudt
+    // bliver til spam anden gang den lander.
+    case "betaling_ikke_fuldfoert":
+      await checkoutAbandoned(recipient.email, recipient.name);
+      return true;
+
     default:
       return false;
   }
+}
+
+/**
+ * Hvor mange ejendele kundens abonnement inkluderer.
+ *
+ * Læses fra abonnementet frem for at stå som et tal i koden. Det er samme
+ * kilde som databasetriggeren tæller op imod, så mailen kan ikke komme til
+ * at sige "dine 5 inkluderede" til en kunde der har ti — og et prisskift
+ * behøver ikke en ny deploy af denne funktion.
+ *
+ * Falder tilbage på kolonnens standardværdi hvis rækken mangler, præcis som
+ * triggeren gør.
+ */
+async function includedItems(admin: Admin, userId: string): Promise<number> {
+  const { data, error } = await admin
+    .from("subscriptions")
+    .select("included_items")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("send-email: kunne ikke læse included_items:", error);
+  }
+
+  return data?.included_items ?? 5;
 }
 
 /** Er mailtypen allerede sendt til brugeren? */

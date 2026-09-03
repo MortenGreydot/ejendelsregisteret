@@ -7,7 +7,16 @@ import { invokeFunction } from "@/lib/functions";
 import { createClient } from "@/lib/supabase/client";
 import { PLANS, vatLabel, type PlanId } from "@/lib/plans";
 import { userMessage } from "@/lib/errors";
+import {
+  EMAIL_MISMATCH,
+  PASSWORD_HINT,
+  PASSWORD_MIN,
+  PASSWORD_MISMATCH,
+  emailsMatch,
+  validatePassword,
+} from "@/lib/password";
 
+import { AcceptTerms, TERMS_REQUIRED } from "../legal/AcceptTerms";
 import { useAudience, type Audience } from "../AudienceProvider";
 
 const fieldClass =
@@ -77,6 +86,15 @@ export function SignupFlow({
   );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /**
+   * Fluebenet ved handelsbetingelserne.
+   *
+   * Ligger på flowet og ikke på det enkelte trin, fordi de to veje til
+   * betaling ender samme sted: den nye kunde sætter det på kontotrinnet, den
+   * der allerede er logget ind på betalingstrinnet. Ét felt betyder også at
+   * ingen af vejene kan glemme det.
+   */
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   function choosePlan() {
     // Er man logget ind, er kontotrinnet overflødigt.
@@ -100,6 +118,29 @@ export function SignupFlow({
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email"));
     const password = String(form.get("adgangskode"));
+
+    // Kontrolleres før kontoen oprettes. Opretter vi først og validerer
+    // bagefter, står brugeren med en konto de ikke bad om, og en anden
+    // fejl end den de kan rette.
+    if (!emailsMatch(email, String(form.get("gentag-email") ?? ""))) {
+      setPending(false);
+      setError(EMAIL_MISMATCH);
+      return;
+    }
+
+    const kodeProblem = validatePassword(password);
+    if (kodeProblem) {
+      setPending(false);
+      setError(kodeProblem);
+      return;
+    }
+
+    if (password !== String(form.get("gentag-adgangskode") ?? "")) {
+      setPending(false);
+      setError(PASSWORD_MISMATCH);
+      return;
+    }
+
     const supabase = createClient();
 
     const { data, error: signUpError } = await supabase.auth.signUp({
@@ -155,6 +196,15 @@ export function SignupFlow({
 
   /** Opretter Checkout-sessionen og sender brugeren til Stripe. */
   async function startCheckout() {
+    // Sidste spærring før pengene. Kontotrinnets <form> stopper allerede en
+    // manglende accept, men betalingstrinnet er en løs knap uden form, og
+    // begge veje går herigennem.
+    if (!acceptedTerms) {
+      setError(TERMS_REQUIRED);
+      setPending(false);
+      return;
+    }
+
     setPending(true);
     setError(null);
 
@@ -359,6 +409,28 @@ export function SignupFlow({
               </div>
 
               <div>
+                <label htmlFor="flow-email-gentag" className={labelClass}>
+                  Gentag e-mailadresse
+                </label>
+                <input
+                  id="flow-email-gentag"
+                  name="gentag-email"
+                  type="email"
+                  required
+                  disabled={pending}
+                  // Ikke "email": autofyld ville udfylde begge felter med
+                  // det samme, og så kontrollerer vi ingenting.
+                  autoComplete="off"
+                  placeholder="dig@eksempel.dk"
+                  className={fieldClass}
+                />
+                <p className="mt-1.5 text-[12.5px] text-muted">
+                  En tastefejl her betyder at hverken kvittering eller
+                  nulstillingslink kan nå frem.
+                </p>
+              </div>
+
+              <div>
                 <label htmlFor="flow-kode" className={labelClass}>
                   Adgangskode
                 </label>
@@ -367,7 +439,27 @@ export function SignupFlow({
                   name="adgangskode"
                   type="password"
                   required
-                  minLength={6}
+                  minLength={PASSWORD_MIN}
+                  disabled={pending}
+                  autoComplete="new-password"
+                  placeholder="••••••••"
+                  className={fieldClass}
+                />
+                <p className="mt-1.5 text-[12.5px] text-muted">
+                  {PASSWORD_HINT}
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="flow-kode-gentag" className={labelClass}>
+                  Gentag adgangskode
+                </label>
+                <input
+                  id="flow-kode-gentag"
+                  name="gentag-adgangskode"
+                  type="password"
+                  required
+                  minLength={PASSWORD_MIN}
                   disabled={pending}
                   autoComplete="new-password"
                   placeholder="••••••••"
@@ -375,6 +467,14 @@ export function SignupFlow({
                 />
               </div>
             </div>
+
+            <AcceptTerms
+              id="flow-betingelser-konto"
+              checked={acceptedTerms}
+              onChange={setAcceptedTerms}
+              disabled={pending}
+              className="mt-5"
+            />
 
             {error && (
               <p role="alert" className="mt-4 text-[14px] text-red-600">
@@ -432,6 +532,14 @@ export function SignupFlow({
               </p>
             </dl>
 
+            <AcceptTerms
+              id="flow-betingelser-betaling"
+              checked={acceptedTerms}
+              onChange={setAcceptedTerms}
+              disabled={pending}
+              className="mx-auto mt-7 max-w-xs"
+            />
+
             {error && (
               <p role="alert" className="mt-5 text-[14px] text-red-600">
                 {error}
@@ -442,7 +550,7 @@ export function SignupFlow({
               type="button"
               onClick={startCheckout}
               disabled={pending}
-              className="mt-7 h-11 w-full rounded-sm bg-orange text-[16px] font-bold text-white transition-colors hover:bg-orange-dark disabled:opacity-70"
+              className="mt-5 h-11 w-full rounded-sm bg-orange text-[16px] font-bold text-white transition-colors hover:bg-orange-dark disabled:opacity-70"
             >
               {pending ? "Sender dig videre…" : "Gå til betaling"}
             </button>

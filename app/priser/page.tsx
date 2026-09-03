@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { PLANS } from "@/lib/plans";
 import type { SubscriptionStatus } from "@/lib/subscription";
 import { createClient } from "@/lib/supabase/server";
 
@@ -7,10 +8,13 @@ import { Navbar } from "../components/Navbar";
 import { Faq } from "../components/priser/Faq";
 import { PricingHero } from "../components/priser/PricingHero";
 
+// Beskrivelsen bygges af PLANS, så et prisskift ikke efterlader et forkert
+// tal i det Google viser.
 export const metadata: Metadata = {
   title: "Priser | Ejendelsregisteret",
   description:
-    "Medlemskab til privat og erhverv. 5 ejendele inkluderet, ekstra ejendele 2 kr./stk./md.",
+    `Medlemskab til privat og erhverv. ${PLANS.privat.includedItems} ejendele ` +
+    `inkluderet, ekstra ejendele ${PLANS.privat.extraItemPrice} kr./stk./md.`,
 };
 
 /** Priser */

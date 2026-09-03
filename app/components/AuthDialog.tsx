@@ -5,9 +5,19 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
+import { PLANS, priceSummary } from "@/lib/plans";
 import { createClient } from "@/lib/supabase/client";
 import { userMessage } from "@/lib/errors";
+import {
+  EMAIL_MISMATCH,
+  PASSWORD_HINT,
+  PASSWORD_MIN,
+  PASSWORD_MISMATCH,
+  emailsMatch,
+  validatePassword,
+} from "@/lib/password";
 
+import { AcceptTerms, TERMS_REQUIRED } from "./legal/AcceptTerms";
 import { useAudience } from "./AudienceProvider";
 
 type Mode = "login" | "signup";
@@ -26,6 +36,7 @@ export function AuthDialog() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const isLogin = mode === "login";
 
@@ -55,17 +66,52 @@ export function AuthDialog() {
     setMode(nextMode);
     setError(null);
     setNotice(null);
+    // Fluebenet må ikke bære over fra én åbning af dialogen til den næste.
+    // En accept skal gives af den der opretter kontoen, i det øjeblik det
+    // sker — ikke arves fra sidste gang formularen var åben.
+    setAcceptedTerms(false);
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setNotice(null);
-    setPending(true);
+
+    // Browseren spærrer allerede for det via `required` på fluebenet. Det
+    // her er bæltet til selerne: kommer en indsendelse alligevel igennem,
+    // skal der ikke oprettes en konto uden en accept.
+    if (!isLogin && !acceptedTerms) {
+      setError(TERMS_REQUIRED);
+      return;
+    }
 
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email"));
     const password = String(form.get("adgangskode"));
+
+    // Kun ved oprettelse. Ved login skal en gammel kode kunne skrives som
+    // den er, også hvis den ikke lever op til nutidens krav — ellers kunne
+    // en bruger med en ældre konto ikke komme ind.
+    if (!isLogin) {
+      if (!emailsMatch(email, String(form.get("gentag-email") ?? ""))) {
+        setError(EMAIL_MISMATCH);
+        return;
+      }
+
+      const kodeProblem = validatePassword(password);
+      if (kodeProblem) {
+        setError(kodeProblem);
+        return;
+      }
+
+      if (password !== String(form.get("gentag-adgangskode") ?? "")) {
+        setError(PASSWORD_MISMATCH);
+        return;
+      }
+    }
+
+    setPending(true);
+
     const supabase = createClient();
 
     try {
@@ -172,7 +218,8 @@ export function AuthDialog() {
 
           {!isLogin && (
             <p className="mt-1.5 text-center text-[14px] text-muted">
-              99 kr. oprettelse &middot; 29 kr./md. &middot; 5 ejendele inkl.
+              {/* Aldrig tal i hånden her — se lib/plans.ts. */}
+              {priceSummary(PLANS[isErhverv ? "erhverv" : "privat"])}
             </p>
           )}
 
@@ -249,6 +296,26 @@ export function AuthDialog() {
               />
             </div>
 
+            {!isLogin && (
+              <div>
+                <label htmlFor="auth-email-gentag" className={labelClass}>
+                  Gentag e-mailadresse
+                </label>
+                <input
+                  id="auth-email-gentag"
+                  name="gentag-email"
+                  type="email"
+                  /* Ikke "email": autofyld ville udfylde begge felter ens,
+                     og så kontrollerer gentagelsen ingenting. */
+                  autoComplete="off"
+                  required
+                  disabled={pending}
+                  placeholder="dig@eksempel.dk"
+                  className={`mt-2 ${fieldClass}`}
+                />
+              </div>
+            )}
+
             <div>
               <label htmlFor="auth-password" className={labelClass}>
                 Adgangskode
@@ -259,14 +326,38 @@ export function AuthDialog() {
                 type="password"
                 autoComplete={isLogin ? "current-password" : "new-password"}
                 required
-                minLength={6}
+                minLength={isLogin ? undefined : PASSWORD_MIN}
                 disabled={pending}
                 placeholder="••••••••"
                 className={`mt-2 ${fieldClass}`}
               />
+              {!isLogin && (
+                <p className="mt-1.5 text-[12.5px] text-muted">
+                  {PASSWORD_HINT}
+                </p>
+              )}
             </div>
 
-            {isLogin && (
+            {!isLogin && (
+              <div>
+                <label htmlFor="auth-password-gentag" className={labelClass}>
+                  Gentag adgangskode
+                </label>
+                <input
+                  id="auth-password-gentag"
+                  name="gentag-adgangskode"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={PASSWORD_MIN}
+                  disabled={pending}
+                  placeholder="••••••••"
+                  className={`mt-2 ${fieldClass}`}
+                />
+              </div>
+            )}
+
+            {isLogin ? (
               <div className="text-right">
                 <Link
                   href="/glemt-adgangskode"
@@ -276,6 +367,13 @@ export function AuthDialog() {
                   Glemt adgangskode?
                 </Link>
               </div>
+            ) : (
+              <AcceptTerms
+                id="auth-betingelser"
+                checked={acceptedTerms}
+                onChange={setAcceptedTerms}
+                disabled={pending}
+              />
             )}
 
             {error && (

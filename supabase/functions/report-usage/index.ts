@@ -8,15 +8,6 @@ import { getStripe } from "../_shared/config.ts";
  * Medlemskabsprisen er graduated tiered og `licensed` — altså aflæser Stripe
  * abonnementslinjens quantity for at afgøre hvilke tiers der rammes:
  *
- *   tier 1 (1–5):   0 kr./stk. + 29 kr. fast
- *   tier 2 (6–∞):   2 kr./stk.
- *
- * Har kunden 8 ejendele, sættes quantity til 8, og Stripe fakturerer
- * 29 + 3 × 2 = 35 kr. Fribundgrænsen på 5 findes dermed kun i Stripe.
- *
- * Minimum 1: en licensed linje kan ikke have quantity 0, og en kunde uden
- * ejendele skal stadig betale de 29 kr. fra tier 1.
- *
  * `proration_behavior: "none"` er afgørende. Uden den udsteder Stripe en
  * forholdsmæssig ekstraregning hver gang tallet ændrer sig midt i perioden.
  * Med den slår det nye antal først igennem på næste faktura.

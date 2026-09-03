@@ -12,7 +12,7 @@ const USPS = [
 export function Hero({ plan }: { plan: Plan }) {
   return (
     <section className="photo-hero">
-      <div className="mx-auto max-w-3xl px-6 py-24 text-center">
+      <div className="mx-auto max-w-3xl px-6 py-8 text-center">
         <p className="mb-2 font-display text-[20px] text-white/60">
           Inventarlisten{" "}
           <em className="font-accent pr-[0.14em] text-orange">en del af</em>{" "}
@@ -43,7 +43,7 @@ export function Hero({ plan }: { plan: Plan }) {
           ))}
         </ul>
 
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/bliv-medlem"
             className="inline-flex h-12 items-center gap-2 rounded-sm bg-orange px-8 text-[16px] font-bold text-white transition-colors hover:bg-orange-dark"
@@ -65,7 +65,7 @@ export function Hero({ plan }: { plan: Plan }) {
           som helst &middot; {vatLabel(plan)}
         </p>
 
-        <p className="mt-10 border-t border-white/15 pt-6 text-[14px] text-white/60">
+        <p className="mt-8 border-t border-white/15 pt-5 text-[14px] text-white/60">
           Har du fundet noget?{" "}
           <Link
             href="/serienummer"

@@ -100,6 +100,7 @@ async function onCheckoutCompleted(
     .from("subscriptions")
     .update({
       status: mapStatus(subscription.status),
+      cancel_at_period_end: subscription.cancel_at_period_end,
       stripe_subscription_id: subscription.id,
       stripe_customer_id: String(subscription.customer),
       monthly_price: monthlyPriceOf(subscription),
@@ -123,6 +124,9 @@ async function onSubscriptionChanged(
     .from("subscriptions")
     .update({
       status: mapStatus(subscription.status),
+      // Fanger også opsigelser og genoptagelser foretaget i Stripes egen
+      // kundeportal, ikke kun dem der går gennem manage-subscription.
+      cancel_at_period_end: subscription.cancel_at_period_end,
       // monthly_price sættes bevidst ikke her: eventets payload har ikke
       // tiers udfoldet, så den ville blive nulstillet ved hvert statusskift.
       current_period_start: periodOf(subscription).start,

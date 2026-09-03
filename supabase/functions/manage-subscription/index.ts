@@ -90,18 +90,74 @@ export default {
       );
     }
 
+    // Et afsluttet abonnement kan ikke genoplives. Stripe afviser at sætte
+    // cancel_at_period_end på et abonnement der allerede er slut, og fejlen
+    // derfra er engelsk og teknisk. Bedre at sige det selv, og sige hvad
+    // kunden så skal gøre.
+    //
+    // Brugerfladen viser normalt slet ikke genoptag-knappen så sent, men
+    // knappen i opsigelsesmailen kan klikkes hvornår som helst — også en
+    // måned efter medlemskabet stoppede.
+    if (
+      action === "resume" &&
+      (sub.status === "canceled" || sub.status === "expired")
+    ) {
+      return Response.json(
+        {
+          error:
+            "Dit medlemskab er allerede udløbet og kan ikke genoptages. Tegn et nyt for at fortsætte.",
+        },
+        { status: 409 },
+      );
+    }
+
     // Opsigelse sker ved periodens udløb, ikke straks — brugeren har betalt
     // for perioden, og FAQ'en på prissiden lover netop det.
-    const updated = await getStripe().subscriptions.update(
-      sub.stripe_subscription_id,
-      { cancel_at_period_end: action === "cancel" },
-    );
+    //
+    // try/catch af samme grund som i create-checkout: uden det bliver enhver
+    // fejl fra Stripe til "non-2xx status code" hos klienten, uden nogen
+    // antydning af hvad der gik galt.
+    let updated;
+    try {
+      updated = await getStripe().subscriptions.update(
+        sub.stripe_subscription_id,
+        { cancel_at_period_end: action === "cancel" },
+      );
+    } catch (caught) {
+      const detail = caught instanceof Error ? caught.message : String(caught);
+      console.error(`manage-subscription: Stripe afviste ${action}:`, detail);
+      return Response.json(
+        {
+          error:
+            action === "cancel"
+              ? "Opsigelsen kunne ikke gennemføres lige nu. Prøv igen om lidt, eller skriv til kontakt@ejendelsregisteret.dk."
+              : "Medlemskabet kunne ikke genoptages lige nu. Prøv igen om lidt, eller skriv til kontakt@ejendelsregisteret.dk.",
+        },
+        { status: 502 },
+      );
+    }
 
     // status opdateres af webhooken; her gemmes kun det brugeren lige valgte.
     // Perioden ligger på abonnementslinjen, ikke på abonnementet.
     const item = updated.items.data[0] as unknown as {
       current_period_end?: number;
     };
+
+    // Skrives med det samme frem for at vente på webhooken. Brugeren
+    // genindlæser Min side i samme sekund som de trykker, og skal se
+    // resultatet af deres eget klik — ikke siden som den så ud før.
+    // Webhooken skriver den samme værdi igen bagefter; det gør intet.
+    const { error: markError } = await ctx.supabaseAdmin
+      .from("subscriptions")
+      .update({
+        cancel_at_period_end: updated.cancel_at_period_end,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", userId);
+
+    if (markError) {
+      console.error("manage-subscription: kunne ikke gemme opsigelsen:", markError);
+    }
 
     // Kun ved opsigelse. Fortryder man igen, får man ikke en mail om det —
     // handlingen bekræftes på skærmen, og en "du er stadig medlem"-mail

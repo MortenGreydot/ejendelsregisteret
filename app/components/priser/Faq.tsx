@@ -1,6 +1,20 @@
-import { FAQ } from "@/lib/plans";
+"use client";
 
+import { PLANS, faq } from "@/lib/plans";
+
+import { useAudience } from "../AudienceProvider";
+
+/**
+ * Spørgsmålene følger den viste plan.
+ *
+ * Klientkomponent af samme grund som PricingHero ovenfor på siden: skifter
+ * man mellem Privat og Erhverv, skal svarene skifte med. Ellers kunne en
+ * erhvervsbesøgende læse et svar med privatprisen i.
+ */
 export function Faq() {
+  const { audience } = useAudience();
+  const items = faq(PLANS[audience]);
+
   return (
     <section className="bg-white">
       <div className="mx-auto max-w-2xl px-6 py-20">
@@ -9,7 +23,7 @@ export function Faq() {
         </h2>
 
         <dl className="mt-10">
-          {FAQ.map((item, index) => (
+          {items.map((item, index) => (
             <div
               key={item.question}
               className={index > 0 ? "border-t border-line pt-6" : ""}

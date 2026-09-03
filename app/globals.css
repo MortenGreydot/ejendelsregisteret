@@ -42,15 +42,22 @@ body {
 }
 
 /* Fotobaggrunde.
-   Alle fire billeder har allerede en mørkning bagt ind, så gradienterne her
-   er bevidst svage — de skal kun sikre kontrast til teksten, ikke mørkne
-   billedet igen. Baggrundsfarven bag hvert billede matcher dets tone, så
-   der ikke blinker hvidt frem inden billedet er hentet. */
+   Gradienterne er der for tekstens skyld, ikke for stemningens: hvid tekst
+   skal kunne læses uanset hvad der ligger under. Hvor kraftig mørkningen
+   skal være afhænger derfor af billedet — nogle af dem har den bagt ind i
+   filen i forvejen og skal kun have et nøk, andre er lyse og skal have hele
+   vejen. Baggrundsfarven bag hvert billede matcher dets tone, så der ikke
+   blinker hvidt frem inden billedet er hentet. */
 .photo-hero {
   background-color: #26324a;
+  /* Headerbilledet er et lyst kontorfoto — hvidt bord, lys væg, gennemsnitlig
+     luminans omkring 143. Den gamle mørkning på 0.35 var beregnet til
+     sofabilledet, som allerede var mørkt i filen, og lod teksten stå næsten
+     ulæselig her. 0.65–0.75 bringer baggrunden ned omkring luminans 60-70, hvor
+     hvid tekst har rigelig kontrast — også de svageste linjer i white/55. */
   background-image:
-    linear-gradient(rgba(20, 28, 45, 0.35), rgba(20, 28, 45, 0.45)),
-    url("/images/sofa-section.png");
+    linear-gradient(rgba(20, 28, 45, 0.65), rgba(20, 28, 45, 0.75)),
+    url("/images/header-image.jpeg");
   background-size: cover;
   background-position: center;
 }
@@ -80,15 +87,19 @@ body {
       rgba(20, 32, 45, 0.35) 55%,
       rgba(20, 32, 45, 0) 100%
     ),
-    url("/images/people.png");
+    url("/images/people.webp");
   background-size: cover;
-  background-position: center 35%;
+
+  background-position: center 52%;
 }
 
-/* Produktbillede uden tekst ovenpå — ingen mørkning. */
-.photo-sofa {
-  background-color: #dfe4e0;
-  background-image: url("/images/sofa.png");
+/* Produktbillede uden tekst ovenpå — ingen mørkning.
+   Billedet er kvadratisk og rammen 4:3, så `cover` beskærer i toppen og
+   bunden. Stelnummeret sidder midt i billedet og overlever beskæringen —
+   skiftes billedet ud, skal motivet stadig ligge i midten. */
+.photo-cykel {
+  background-color: #5b5b5c;
+  background-image: url("/images/cykel-stel.webp");
   background-size: cover;
   background-position: center;
 }
