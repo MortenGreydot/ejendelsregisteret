@@ -64,7 +64,11 @@ body {
 
 .photo-tools {
   background-color: #1c1a20;
-  /* Teksten står til venstre, så mørkningen aftager mod højre hvor boremaskinen er. */
+
+  /* Teksten står til venstre, så mørkningen aftager mod højre hvor
+     boremaskinen er. Billedfilen er spejlvendt netop derfor: i originalen
+     lå boremaskinen i venstre side, altså under teksten og i den mørkeste
+     del af gradienten. Skiftes filen ud, skal motivet ligge til højre. */
   background-image:
     linear-gradient(
       100deg,
