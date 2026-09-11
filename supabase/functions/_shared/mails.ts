@@ -66,7 +66,9 @@ export function receipt(
         : "Medlemskab, &eacute;n m&aring;ned"
     }`,
     ...(invoiceNumber
-      ? [`<strong style="color:#1c2d4f;">Fakturanummer:</strong> ${invoiceNumber}`]
+      ? [
+          `<strong style="color:#1c2d4f;">Fakturanummer:</strong> ${invoiceNumber}`,
+        ]
       : []),
   ].join("<br>");
 
@@ -129,7 +131,7 @@ export function checkoutAbandoned(to: string, name: string | null) {
     preheader:
       "Betalingen blev ikke gennemført. Der er ikke trukket penge — du kan gøre det færdigt når du vil.",
     paragraphs: [
-      "Du gik i gang med at oprette dit medlemskab, men betalingen blev ikke gennemf&oslash;rt. <strong style=\"color:#1c2d4f;\">Der er ikke trukket nogen penge.</strong>",
+      'Du gik i gang med at oprette dit medlemskab, men betalingen blev ikke gennemf&oslash;rt. <strong style="color:#1c2d4f;">Der er ikke trukket nogen penge.</strong>',
       "Vil du g&oslash;re det f&aelig;rdigt, tager det under et minut. Bagefter kan du registrere dine f&oslash;rste ejendele og have dokumentationen klar den dag noget bliver v&aelig;k.",
     ],
     button: {
@@ -177,11 +179,7 @@ export function firstItem(to: string, itemName: string) {
 }
 
 /** Grænse nået. Kvoten er fyldt op — flere ejendele koster ekstra. */
-export function itemLimitReached(
-  to: string,
-  count: number,
-  unitPrice: number,
-) {
+export function itemLimitReached(to: string, count: number, unitPrice: number) {
   return sendEmail({
     to,
     subject: `Du har registreret ${count} ejendele`,
@@ -207,7 +205,7 @@ export function noItemsYet(to: string, name: string | null) {
     preheader:
       "Dit medlemskab er aktivt, men der er ingen ejendele registreret endnu.",
     paragraphs: [
-      "Dit medlemskab er aktivt, men der ligger ingen ejendele i dit register endnu. Det betyder ogs&aring; at der ikke er noget at dokumentere med, hvis uheldet sker.",
+      "Dit medlemskab er aktivt, men der ligger ingen ejendele i din inventarliste endnu. Det betyder ogs&aring; at der ikke er noget at dokumentere med, hvis uheldet sker.",
       "Start med &eacute;n ting. Tag telefonen, cyklen eller v&aelig;rkt&oslash;jet. Et billede af genstanden og et af m&aelig;rkaten med serienummeret er nok.",
     ],
     button: {
@@ -334,7 +332,9 @@ export function ownerContacted(
   const kontakt = [
     `<strong style="color:#1c2d4f;">E-mail:</strong> <a href="mailto:${escapeHtml(request.finderEmail)}" style="color:#d2802e;">${escapeHtml(request.finderEmail)}</a>`,
     ...(request.finderPhone
-      ? [`<strong style="color:#1c2d4f;">Telefon:</strong> ${escapeHtml(request.finderPhone)}`]
+      ? [
+          `<strong style="color:#1c2d4f;">Telefon:</strong> ${escapeHtml(request.finderPhone)}`,
+        ]
       : []),
   ].join("<br>");
 
