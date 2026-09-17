@@ -205,7 +205,7 @@ export function AuthDialog() {
               Ejendelsregisteret
             </p>
             <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-orange">
-              Dækker alt, over alt
+              Dækker alt - over alt
             </p>
           </div>
 

@@ -22,8 +22,7 @@ const LINE = "#e3e6ea";
 const MIST = "#eff1f4";
 
 /** Abhaya Libre findes kun i få mailklienter — Georgia bærer resten. */
-const FF =
-  "font-family:'Abhaya Libre',Georgia,'Times New Roman',serif;";
+const FF = "font-family:'Abhaya Libre',Georgia,'Times New Roman',serif;";
 
 /** Knap. `label` er knapteksten. */
 export type Button = { label: string; url: string };
@@ -95,7 +94,7 @@ function template({
 
         <tr><td class="px" style="padding:28px 32px 0 32px;">
           <div style="${FF} font-size:17px; font-weight:700; color:${NAVY};">Ejendelsregisteret</div>
-          <div style="${FF} font-size:10px; font-weight:700; letter-spacing:1.6px; text-transform:uppercase; color:${ORANGE}; padding-top:3px;">D&aelig;kker alt, over alt</div>
+          <div style="${FF} font-size:10px; font-weight:700; letter-spacing:1.6px; text-transform:uppercase; color:${ORANGE}; padding-top:3px;">D&aelig;kker alt - over alt</div>
         </td></tr>
 
         <tr><td class="px" style="padding:24px 32px 0 32px;">
@@ -161,24 +160,26 @@ function plainText({
 
 /** HTML → læsbar tekst. Kun de entiteter vores egne skabeloner bruger. */
 function stripHtml(html: string): string {
-  return html
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&aelig;/g, "æ")
-    .replace(/&oslash;/g, "ø")
-    .replace(/&aring;/g, "å")
-    .replace(/&Aelig;/g, "Æ")
-    .replace(/&Oslash;/g, "Ø")
-    .replace(/&Aring;/g, "Å")
-    .replace(/&eacute;/g, "é")
-    .replace(/&middot;/g, "·")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    // &amp; til sidst, ellers ville den kunne genskabe en anden entitet.
-    .replace(/&amp;/g, "&")
-    .replace(/[ \t]+/g, " ")
-    .trim();
+  return (
+    html
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&aelig;/g, "æ")
+      .replace(/&oslash;/g, "ø")
+      .replace(/&aring;/g, "å")
+      .replace(/&Aelig;/g, "Æ")
+      .replace(/&Oslash;/g, "Ø")
+      .replace(/&Aring;/g, "Å")
+      .replace(/&eacute;/g, "é")
+      .replace(/&middot;/g, "·")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      // &amp; til sidst, ellers ville den kunne genskabe en anden entitet.
+      .replace(/&amp;/g, "&")
+      .replace(/[ \t]+/g, " ")
+      .trim()
+  );
 }
 
 /**

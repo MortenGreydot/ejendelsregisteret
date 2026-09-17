@@ -1,4 +1,10 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import {
+  PDFDocument,
+  StandardFonts,
+  rgb,
+  type PDFFont,
+  type PDFPage,
+} from "pdf-lib";
 
 import { COMPANY } from "./legal";
 
@@ -52,9 +58,7 @@ export type BevisEjendel = {
 };
 
 const dkDato = (iso: string | null) =>
-  iso
-    ? new Date(iso).toLocaleDateString("da-DK", { dateStyle: "long" })
-    : "—";
+  iso ? new Date(iso).toLocaleDateString("da-DK", { dateStyle: "long" }) : "—";
 
 const kroner = (beloeb: number | null) =>
   beloeb === null
@@ -105,7 +109,12 @@ class Ark {
 
   tekst(
     indhold: string,
-    opts: { size?: number; fed?: boolean; farve?: ReturnType<typeof rgb>; x?: number } = {},
+    opts: {
+      size?: number;
+      fed?: boolean;
+      farve?: ReturnType<typeof rgb>;
+      x?: number;
+    } = {},
   ) {
     const size = opts.size ?? 10;
     this.side.drawText(sikker(indhold), {
@@ -126,7 +135,13 @@ class Ark {
     for (const o of ord) {
       const forsoeg = linje ? `${linje} ${o}` : o;
       if (this.normal.widthOfTextAtSize(forsoeg, size) > bredde && linje) {
-        this.side.drawText(linje, { x, y: this.y, size, font: this.normal, color: BODY });
+        this.side.drawText(linje, {
+          x,
+          y: this.y,
+          size,
+          font: this.normal,
+          color: BODY,
+        });
         this.y -= size + 4;
         linjer++;
         linje = o;
@@ -136,7 +151,13 @@ class Ark {
     }
 
     if (linje) {
-      this.side.drawText(linje, { x, y: this.y, size, font: this.normal, color: BODY });
+      this.side.drawText(linje, {
+        x,
+        y: this.y,
+        size,
+        font: this.normal,
+        color: BODY,
+      });
       this.y -= size + 4;
       linjer++;
     }
@@ -159,7 +180,7 @@ class Ark {
 function brevhoved(ark: Ark, titel: string, undertitel: string) {
   ark.tekst(COMPANY.service, { size: 15, fed: true, farve: NAVY });
   ark.y -= 13;
-  ark.tekst("DÆKKER ALT, OVER ALT", { size: 7.5, fed: true, farve: ORANGE });
+  ark.tekst("DÆKKER ALT - OVER ALT", { size: 7.5, fed: true, farve: ORANGE });
   ark.y -= 26;
 
   ark.tekst(titel, { size: 20, fed: true, farve: NAVY });
@@ -178,7 +199,12 @@ function raekke(ark: Ark, etiket: string, vaerdi: string) {
   ark.tekst(etiket, { size: 9.5, farve: MUTED });
   const linjer = (() => {
     const gemt = ark.y;
-    const n = ark.afsnit(vaerdi || "—", INDHOLD - etiketBredde, MARGEN + etiketBredde, 10);
+    const n = ark.afsnit(
+      vaerdi || "—",
+      INDHOLD - etiketBredde,
+      MARGEN + etiketBredde,
+      10,
+    );
     ark.y = gemt;
     return n;
   })();
@@ -198,7 +224,10 @@ function raekke(ark: Ark, etiket: string, vaerdi: string) {
  * som JPEG i den anden ende. Samtidig skaleres det ned, så et bevis med
  * fem fotos ikke bliver på tyve megabyte.
  */
-async function somJpeg(url: string, maxKant = 1400): Promise<Uint8Array | null> {
+async function somJpeg(
+  url: string,
+  maxKant = 1400,
+): Promise<Uint8Array | null> {
   try {
     const svar = await fetch(url);
     if (!svar.ok) return null;
@@ -281,7 +310,13 @@ function sidefod(pdf: PDFDocument, font: PDFFont, stemplet: string) {
       { x: MARGEN, y: MARGEN - 22, size: 7.5, font, color: MUTED },
     );
     side.drawText(sikker(`${stemplet} · side ${i + 1} af ${sider.length}`), {
-      x: SIDE.bredde - MARGEN - font.widthOfTextAtSize(`${stemplet} · side ${i + 1} af ${sider.length}`, 7.5),
+      x:
+        SIDE.bredde -
+        MARGEN -
+        font.widthOfTextAtSize(
+          `${stemplet} · side ${i + 1} af ${sider.length}`,
+          7.5,
+        ),
       y: MARGEN - 22,
       size: 7.5,
       font,
@@ -298,8 +333,16 @@ function oplysninger(ark: Ark, e: BevisEjendel) {
   raekke(ark, "Model", e.model ?? "");
   raekke(ark, "Serienummer", e.serials.length ? e.serials.join(", ") : "");
   raekke(ark, "Købsdato", e.purchaseDate ? dkDato(e.purchaseDate) : "");
-  raekke(ark, "Købspris", e.purchasePrice !== null ? kroner(e.purchasePrice) : "");
-  raekke(ark, "Anslået værdi i dag", e.currentValue !== null ? kroner(e.currentValue) : "");
+  raekke(
+    ark,
+    "Købspris",
+    e.purchasePrice !== null ? kroner(e.purchasePrice) : "",
+  );
+  raekke(
+    ark,
+    "Anslået værdi i dag",
+    e.currentValue !== null ? kroner(e.currentValue) : "",
+  );
   raekke(ark, "Forhandler", e.retailer ?? "");
   raekke(ark, "Beskrivelse", e.description ?? "");
   raekke(
@@ -324,7 +367,11 @@ function oplysninger(ark: Ark, e: BevisEjendel) {
  * filen, ellers skal modtageren bede om den separat. PDF'er kopieres side
  * for side, billeder lægges ind som et helt ark.
  */
-async function bilag(pdf: PDFDocument, dokumenter: BevisDokument[], font: PDFFont) {
+async function bilag(
+  pdf: PDFDocument,
+  dokumenter: BevisDokument[],
+  font: PDFFont,
+) {
   for (const dok of dokumenter) {
     try {
       const svar = await fetch(dok.url);
@@ -333,7 +380,10 @@ async function bilag(pdf: PDFDocument, dokumenter: BevisDokument[], font: PDFFon
 
       // Signaturen frem for filnavnet: en fil kan hedde .pdf uden at være det.
       const erPdf =
-        data[0] === 0x25 && data[1] === 0x50 && data[2] === 0x44 && data[3] === 0x46;
+        data[0] === 0x25 &&
+        data[1] === 0x50 &&
+        data[2] === 0x44 &&
+        data[3] === 0x46;
 
       if (erPdf) {
         const kilde = await PDFDocument.load(data, { ignoreEncryption: true });
@@ -456,7 +506,11 @@ export async function bygInventarrapport(
   // oplysningerne genstand for genstand.
   for (const [i, ejendel] of ejendele.entries()) {
     ark.plads(200);
-    ark.tekst(`${i + 1}. ${ejendel.name}`, { size: 13, fed: true, farve: NAVY });
+    ark.tekst(`${i + 1}. ${ejendel.name}`, {
+      size: 13,
+      fed: true,
+      farve: NAVY,
+    });
     ark.y -= 18;
     oplysninger(ark, ejendel);
     ark.y -= 6;

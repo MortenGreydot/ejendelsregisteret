@@ -43,7 +43,7 @@ export async function Navbar() {
                 Ejendelsregisteret
               </span>
               <span className="mt-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-orange">
-                Dækker alt, over alt
+                Dækker alt - over alt
               </span>
             </span>
           </Link>
