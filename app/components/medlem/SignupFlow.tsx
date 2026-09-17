@@ -278,10 +278,11 @@ export function SignupFlow({
               </AudienceLink>
             </p>
 
-            <div className="mx-auto mt-8 max-w-sm rounded-sm border border-line bg-white p-8">
-              <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-orange">
-                {plan.eyebrow}
-              </p>
+            <div className="mx-auto mt-8 max-w-sm rounded-sm border border-line bg-white px-8 pb-8">
+              <h2 className="mt-4 font-display text-[16px] font-normal text-navy border-b  border-line">
+                Opret medlemskab, register og dokumenter.
+              </h2>
+
               <p className="mt-3 font-display text-[24px] font-bold text-navy">
                 {plan.name}
               </p>

@@ -31,7 +31,9 @@ export function PlanCard({
       >
         {plan.name}
       </p>
-      <p className={`mt-1 text-[14px] ${dark ? "text-white/65" : "text-muted"}`}>
+      <p
+        className={`mt-1 text-[14px] ${dark ? "text-white/65" : "text-muted"}`}
+      >
         {plan.tagline}
       </p>
 
@@ -50,7 +52,9 @@ export function PlanCard({
       <p className="mt-2 text-[13px] text-orange">
         + {plan.setupFee} kr. ved oprettelse (én gang)
       </p>
-      <p className={`mt-1 text-[12px] ${dark ? "text-white/50" : "text-muted"}`}>
+      <p
+        className={`mt-1 text-[12px] ${dark ? "text-white/50" : "text-muted"}`}
+      >
         Alle priser {vatLabel(plan)}
       </p>
 
@@ -84,9 +88,7 @@ export function PlanCard({
         onClick={() => onSelect(plan.id)}
         disabled={pending || hasSubscription}
         title={
-          hasSubscription
-            ? "Du har allerede et aktivt medlemskab"
-            : undefined
+          hasSubscription ? "Du har allerede et aktivt medlemskab" : undefined
         }
         className={`mt-7 h-11 w-full rounded-sm text-[15px] font-bold transition-colors ${
           hasSubscription
