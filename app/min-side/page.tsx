@@ -141,8 +141,15 @@ export default async function MyAccountPage({
   const isBusiness = profile?.account_type === "business";
   const plan = isBusiness ? PLANS.erhverv : PLANS.privat;
   const planName = isBusiness ? "Erhverv" : "Personlig";
-  const includedItems = subscription?.included_items ?? plan.includedItems;
   const status = (subscription?.status ?? null) as SubscriptionStatus;
+  // Abonnementets eget tal er kun sandt når webhooken har sat det ud fra
+  // kundens Stripe-pris, dvs. når medlemskabet er aktivt. Før betaling står
+  // databasens standardværdi i rækken, og den passer ikke til nogen plan —
+  // så vises planens tal i stedet.
+  const includedItems =
+    status === "active" && subscription?.included_items != null
+      ? subscription.included_items
+      : plan.includedItems;
   const hasSubscription = status === "active";
 
   return (

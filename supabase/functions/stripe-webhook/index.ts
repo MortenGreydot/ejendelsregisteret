@@ -104,6 +104,11 @@ async function onCheckoutCompleted(
       stripe_subscription_id: subscription.id,
       stripe_customer_id: String(subscription.customer),
       monthly_price: monthlyPriceOf(subscription),
+      // Kun hvis Stripe oplyser det. Ellers bliver den eksisterende værdi
+      // stående frem for at blive overskrevet med noget gættet.
+      ...(includedItemsOf(subscription) !== null
+        ? { included_items: includedItemsOf(subscription) }
+        : {}),
       activated_at: new Date().toISOString(),
       current_period_start: periodOf(subscription).start,
       current_period_end: periodOf(subscription).end,
@@ -361,6 +366,30 @@ function periodOf(subscription: Stripe.Subscription): {
  *
  * Kræver at abonnementet er hentet med expand: ["items.data.price.tiers"].
  */
+/**
+ * Antal inkluderede ejendele, læst fra kundens egen pris i Stripe.
+ *
+ * Prisen er gradueret: første trin dækker de inkluderede ejendele for et
+ * fast beløb, og hvert trin derefter koster pr. stk. Grænsen for første
+ * trin (up_to) ER antallet af inkluderede ejendele — det er den Stripe
+ * fakturerer efter. Tidligere stod tallet i databasen som en fast
+ * standardværdi, og den kunne ikke følge med da privat og erhverv fik
+ * hver sit antal.
+ *
+ * Læst pr. kunde, så en der tegnede på en ældre pris beholder det antal
+ * den pris gav. At rette priserne i Stripe flytter kun nye kunder.
+ *
+ * Kræver at abonnementet er hentet med items.data.price.tiers udfoldet,
+ * som i onCheckoutCompleted. Eventets egen payload har dem ikke.
+ */
+function includedItemsOf(subscription: Stripe.Subscription): number | null {
+  const tiered = subscription.items.data.find(
+    (item) => item.price.billing_scheme === "tiered",
+  );
+  const upTo = tiered?.price.tiers?.[0]?.up_to;
+  return typeof upTo === "number" && upTo > 0 ? upTo : null;
+}
+
 function monthlyPriceOf(subscription: Stripe.Subscription): number | null {
   const recurring = subscription.items.data.find(
     (item) => item.price.recurring !== null,

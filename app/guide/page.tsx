@@ -39,7 +39,8 @@ const CHAPTERS: Chapter[] = [
 const WHERE_ROWS = [
   {
     item: "iPhone",
-    where: "Indstillinger → Generelt → Om. Tast *#06# for IMEI-nummeret, som politiet bruger.",
+    where:
+      "Indstillinger → Generelt → Om. Tast *#06# for IMEI-nummeret, som politiet bruger.",
   },
   {
     item: "Android-telefon",
@@ -47,11 +48,13 @@ const WHERE_ROWS = [
   },
   {
     item: "MacBook",
-    where: "Æble-menuen → Om denne Mac. Står også med små typer i bunden af maskinen.",
+    where:
+      "Æble-menuen → Om denne Mac. Står også med små typer i bunden af maskinen.",
   },
   {
     item: "Windows-laptop",
-    where: "Mærkat i bunden. Ellers kommandoen wmic bios get serialnumber i Kommandoprompt.",
+    where:
+      "Mærkat i bunden. Ellers kommandoen wmic bios get serialnumber i Kommandoprompt.",
   },
   {
     item: "iPad og tablet",
@@ -59,11 +62,13 @@ const WHERE_ROWS = [
   },
   {
     item: "Cykel",
-    where: "Stelnummeret er stemplet i metallet, oftest under kranken hvor pedalerne sidder. Ellers på gaflen eller under sadelpinden.",
+    where:
+      "Stelnummeret er stemplet i metallet, oftest under kranken hvor pedalerne sidder. Ellers på gaflen eller under sadelpinden.",
   },
   {
     item: "Elcykel",
-    where: "Stelnummer som ovenfor, plus et selvstændigt motornummer på motorhuset. Skriv begge ind.",
+    where:
+      "Stelnummer som ovenfor, plus et selvstændigt motornummer på motorhuset. Skriv begge ind.",
   },
   {
     item: "Elløbehjul",
@@ -71,11 +76,13 @@ const WHERE_ROWS = [
   },
   {
     item: "Kamera",
-    where: "Mærkat i bunden af huset eller inde i batterirummet. Objektiver har deres eget nummer på fatningen.",
+    where:
+      "Mærkat i bunden af huset eller inde i batterirummet. Objektiver har deres eget nummer på fatningen.",
   },
   {
     item: "Ur",
-    where: "Indgraveret på bagsiden af urkassen. Ofte meget småt, så brug telefonens kamera til at zoome.",
+    where:
+      "Indgraveret på bagsiden af urkassen. Ofte meget småt, så brug telefonens kamera til at zoome.",
   },
   {
     item: "Elværktøj",
@@ -91,7 +98,8 @@ const WHERE_ROWS = [
   },
   {
     item: "Musikinstrument",
-    where: "Guitarer: på halsklodsen eller i lydhullet. Blæseinstrumenter: indgraveret nær ventilerne.",
+    where:
+      "Guitarer: på halsklodsen eller i lydhullet. Blæseinstrumenter: indgraveret nær ventilerne.",
   },
 ];
 
@@ -127,10 +135,10 @@ export default function GuidePage() {
               lead="Et sted at samle dokumentationen for det du ejer, inden du får brug for den."
             >
               <p>
-                De fleste opdager først hvor lidt de kan dokumentere, når
-                skaden er sket. Kvitteringen er væk, serienummeret stod på en
-                æske der blev smidt ud, og de eneste billeder er nogle
-                tilfældige feriefotos hvor cyklen tilfældigvis er med.
+                De fleste opdager først hvor lidt de kan dokumentere, når skaden
+                er sket. Kvitteringen er væk, serienummeret stod på en æske der
+                blev smidt ud, og de eneste billeder er nogle tilfældige
+                feriefotos hvor cyklen tilfældigvis er med.
               </p>
               <p>
                 Her ligger serienummer, kvittering og billeder samlet på hver
@@ -154,7 +162,9 @@ export default function GuidePage() {
               <List
                 items={[
                   <>
-                    <strong className="text-navy">Vælg privat eller erhverv</strong>{" "}
+                    <strong className="text-navy">
+                      Vælg privat eller erhverv
+                    </strong>{" "}
                     øverst på siden. Valget afgør priser og moms, og du kan
                     skifte igen senere.
                   </>,
@@ -184,11 +194,10 @@ export default function GuidePage() {
               lead="Serienummeret er det vigtigste felt. Resten kan udfyldes senere."
             >
               <p>
-                En registrering består af navn, mærke, kategori, beskrivelse,
-                et eller flere serienumre, billeder og kvitteringer. Kun navnet
-                er påkrævet, men en registrering uden serienummer kan hverken
-                slås op eller bruges til at bevise at netop den genstand var
-                din.
+                En registrering består af navn, mærke, kategori, beskrivelse, et
+                eller flere serienumre, billeder og kvitteringer. Kun navnet er
+                påkrævet, men en registrering uden serienummer kan hverken slås
+                op eller bruges til at bevise at netop den genstand var din.
               </p>
               <List
                 items={[
@@ -210,13 +219,13 @@ export default function GuidePage() {
                     alle ind.
                   </>,
                   <>
-                    <strong className="text-navy">Kategori:</strong> skriv
-                    hvad som helst. Findes kategorien ikke, oprettes den.
+                    <strong className="text-navy">Kategori:</strong> skriv hvad
+                    som helst. Findes kategorien ikke, oprettes den.
                   </>,
                   <>
                     <strong className="text-navy">Beskrivelse:</strong> plads
-                    til det der kendetegner netop din genstand: en ridse,
-                    et klistermærke, en udskiftet del.
+                    til det der kendetegner netop din genstand: en ridse, et
+                    klistermærke, en udskiftet del.
                   </>,
                 ]}
               />
@@ -317,8 +326,8 @@ export default function GuidePage() {
                 >
                   opslagssiden
                 </Link>
-                . Der skal matches præcist, og nummeret skal være på mindst
-                fire tegn. Man kan ikke søge sig frem på brudstykker.
+                . Der skal matches præcist, og nummeret skal være på mindst fire
+                tegn. Man kan ikke søge sig frem på brudstykker.
               </p>
               <p>
                 Er der en træffer, viser vi genstandens navn, mærke, kategori,
@@ -358,10 +367,10 @@ export default function GuidePage() {
               lead="De beder om det samme hver gang. Her ligger det klar."
             >
               <p>
-                Et forsikringsselskab vil typisk se købskvittering,
-                serienummer, billeder af genstanden og, ved tyveri, en
-                politianmeldelse med journalnummer. Mangler kvitteringen,
-                ender det ofte med afslag eller en erstatning efter skøn.
+                Et forsikringsselskab vil typisk se købskvittering, serienummer,
+                billeder af genstanden og, ved tyveri, en politianmeldelse med
+                journalnummer. Mangler kvitteringen, ender det ofte med afslag
+                eller en erstatning efter skøn.
               </p>
               <p>
                 Vi er ikke part i din sag og kan ikke love at et selskab
@@ -386,7 +395,9 @@ export default function GuidePage() {
                     Derudover koster hver ejendel {plan.extraItemPrice} kr./md.
                   </>,
                   <>
-                    <strong className="text-navy">Beløbet følger antallet.</strong>{" "}
+                    <strong className="text-navy">
+                      Beløbet følger antallet.
+                    </strong>{" "}
                     Sletter du en ejendel, falder betalingen tilsvarende på
                     næste faktura.
                   </>,
@@ -421,8 +432,8 @@ export default function GuidePage() {
                 fjernes med det samme.
               </p>
               <p>
-                Dine betalingsoplysninger, altså beløb, dato og
-                fakturanummer, bliver stående i fem år, fordi bogføringsloven kræver det. De er
+                Dine betalingsoplysninger, altså beløb, dato og fakturanummer,
+                bliver stående i fem år, fordi bogføringsloven kræver det. De er
                 ikke længere knyttet til dig som person. Det står udførligt i{" "}
                 <Link
                   href="/privatlivspolitik"

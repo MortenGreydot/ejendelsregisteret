@@ -37,25 +37,26 @@ export type Pricing = {
  * ── De tre steder tallene også står, uden for sitet ────────────────
  *
  *   1. Stripe            — de rigtige priser. Autoriteten.
- *   2. subscriptions.included_items — sættes pr. kunde ved checkout og er
- *      det databasetriggeren tæller op imod. Standardværdien er sat i
- *      migrationen 20260824080756 og skal følge includedItems herunder.
+ *   2. subscriptions.included_items — webhooken læser den fra det første
+ *      trin i kundens Stripe-pris når betalingen gennemføres. Den behøver
+ *      altså ikke rettes i hånden; den følger Stripe. Eksisterende kunder
+ *      beholder det antal deres pris havde, da de tegnede.
  *   3. supabase/functions/send-email — mailen "du har nået grænsen"
  *      henter antallet fra kundens abonnement, men stykprisen står som en
  *      konstant i filen, fordi den kun findes i Stripe.
  */
 const PRICING: Record<PlanId, Pricing> = {
   privat: {
-    monthlyPrice: 29,
-    setupFee: 99,
-    includedItems: 5,
+    monthlyPrice: 19,
+    setupFee: 59,
+    includedItems: 20,
     extraItemPrice: 2,
   },
   erhverv: {
-    monthlyPrice: 49,
-    setupFee: 99,
-    includedItems: 5,
-    extraItemPrice: 2,
+    monthlyPrice: 39,
+    setupFee: 149,
+    includedItems: 25,
+    extraItemPrice: 5,
   },
 };
 

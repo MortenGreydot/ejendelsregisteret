@@ -8,6 +8,7 @@ import {
   itemLimitReached,
   noItemsYet,
 } from "../_shared/mails.ts";
+import { getStripe } from "../_shared/config.ts";
 import { getRecipient } from "../_shared/recipient.ts";
 
 /**
@@ -32,18 +33,14 @@ import { getRecipient } from "../_shared/recipient.ts";
  */
 
 /**
- * Stykpris for ejendele ud over de inkluderede, i kroner pr. måned.
+ * Stykprisen pr. ekstra ejendel, hvis Stripe ikke kan spørges.
  *
- * Står som en konstant her, fordi prisen kun findes ét sted udenfor: som en
- * graduated tiered price i Stripe. Databasen kender den ikke, og denne
- * funktion kan ikke importere lib/plans.ts — Next-koden og edge-koden kører
- * i hver sin runtime.
- *
- * Ændres prisen, skal den ændres i Stripe, i lib/plans.ts og her. Antallet
- * af inkluderede ejendele skal derimod IKKE stå her; det hentes pr. kunde
- * fra deres abonnement, se includedItems() nedenfor.
+ * Kun en nødløsning — se extraItemPrice() nedenfor, som læser den pris
+ * kunden faktisk faktureres efter. Skal matche extraItemPrice i
+ * lib/plans.ts; edge-koden kan ikke importere derfra, da Next og Deno er
+ * hver sin runtime.
  */
-const EXTRA_ITEM_PRICE = 2;
+const EXTRA_ITEM_PRICE_FALLBACK = { private: 2, business: 5 } as const;
 
 /** De typer der kun må sendes én gang pr. bruger. */
 const ONCE_ONLY = new Set([
@@ -129,7 +126,7 @@ async function dispatch(
       await itemLimitReached(
         recipient.email,
         await includedItems(admin, userId),
-        EXTRA_ITEM_PRICE,
+        await extraItemPrice(admin, userId),
       );
       return true;
 
@@ -172,6 +169,59 @@ async function includedItems(admin: Admin, userId: string): Promise<number> {
   }
 
   return data?.included_items ?? 5;
+}
+
+/**
+ * Hvad kunden betaler pr. ejendel ud over de inkluderede, i kroner.
+ *
+ * Læst fra kundens egen pris i Stripe: det andet trin i den graduerede
+ * pris er stykprisen. Privat og erhverv har ikke længere samme pris, og en
+ * kunde der tegnede før en prisændring faktureres stadig efter sin gamle
+ * pris. Et fast tal i koden ville skrive det forkerte beløb i mailen til
+ * mindst én af dem.
+ *
+ * Kan Stripe ikke nås, bruges planens nuværende pris ud fra kontotypen.
+ * Den kan være forkert for en ældre kunde, men en mail med et omtrent
+ * rigtigt beløb er bedre end ingen mail.
+ */
+async function extraItemPrice(admin: Admin, userId: string): Promise<number> {
+  const { data: sub } = await admin
+    .from("subscriptions")
+    .select("stripe_subscription_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (sub?.stripe_subscription_id) {
+    try {
+      const abonnement = await getStripe().subscriptions.retrieve(
+        sub.stripe_subscription_id,
+        { expand: ["items.data.price.tiers"] },
+      );
+      const tiered = abonnement.items.data.find(
+        (item) => item.price.billing_scheme === "tiered",
+      );
+      const trin = tiered?.price.tiers?.[1];
+      const oere =
+        trin?.unit_amount ??
+        (trin?.unit_amount_decimal ? Number(trin.unit_amount_decimal) : null);
+
+      if (typeof oere === "number" && Number.isFinite(oere)) {
+        return oere / 100;
+      }
+    } catch (caught) {
+      console.error("send-email: kunne ikke læse stykprisen i Stripe:", caught);
+    }
+  }
+
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("account_type")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  return profile?.account_type === "business"
+    ? EXTRA_ITEM_PRICE_FALLBACK.business
+    : EXTRA_ITEM_PRICE_FALLBACK.private;
 }
 
 /** Er mailtypen allerede sendt til brugeren? */

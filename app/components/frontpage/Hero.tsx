@@ -48,7 +48,7 @@ export function Hero({ plan }: { plan: Plan }) {
             href="/bliv-medlem"
             className="inline-flex h-12 items-center gap-2 rounded-sm bg-orange px-8 text-[16px] font-bold text-white transition-colors hover:bg-orange-dark"
           >
-            Kom i gang
+            Se mere
             <ArrowRight className="size-4" strokeWidth={2.5} />
           </Link>
           <Link

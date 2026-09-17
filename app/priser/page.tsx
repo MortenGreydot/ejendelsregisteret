@@ -13,8 +13,9 @@ import { PricingHero } from "../components/priser/PricingHero";
 export const metadata: Metadata = {
   title: "Priser | Ejendelsregisteret",
   description:
-    `Medlemskab til privat og erhverv. ${PLANS.privat.includedItems} ejendele ` +
-    `inkluderet, ekstra ejendele ${PLANS.privat.extraItemPrice} kr./stk./md.`,
+    `Medlemskab til privat og erhverv. Privat fra ${PLANS.privat.monthlyPrice} kr./md. ` +
+    `med ${PLANS.privat.includedItems} ejendele, erhverv fra ${PLANS.erhverv.monthlyPrice} kr./md. ` +
+    `med ${PLANS.erhverv.includedItems} ejendele inkluderet.`,
 };
 
 /** Priser */

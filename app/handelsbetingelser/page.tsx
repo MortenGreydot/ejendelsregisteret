@@ -43,19 +43,25 @@ export default function TermsPage() {
           items={[
             <>
               <strong className="text-navy">Privat:</strong> {privat.setupFee}{" "}
-              kr. i oprettelse, derefter {privat.monthlyPrice} kr./md. Alle
-              beløb inkl. moms.
+              kr. i oprettelse, derefter {privat.monthlyPrice} kr./md. med{" "}
+              {privat.includedItems} ejendele inkluderet. Alle beløb inkl.
+              moms.
             </>,
             <>
               <strong className="text-navy">Erhverv:</strong> {erhverv.setupFee}{" "}
-              kr. i oprettelse, derefter {erhverv.monthlyPrice} kr./md. Alle
-              beløb ekskl. moms.
+              kr. i oprettelse, derefter {erhverv.monthlyPrice} kr./md. med{" "}
+              {erhverv.includedItems} ejendele inkluderet. Alle beløb ekskl.
+              moms.
             </>,
           ]}
         />
         <p>
-          Begge inkluderer {privat.includedItems} ejendele. Registrerer du
-          flere, koster hver ekstra ejendel {privat.extraItemPrice} kr./md.
+          {/* Planerne har ikke længere samme antal inkluderede ejendele, så
+              der må ikke stå "begge" om antallet — kun om stykprisen, og
+              kun så længe den faktisk er ens. */}
+          Registrerer du flere end dit medlemskab inkluderer, koster hver
+          ekstra ejendel {privat.extraItemPrice} kr./md. på privat og{" "}
+          {erhverv.extraItemPrice} kr./md. på erhverv.
         </p>
         <Callout>
           Beløbet følger antallet. Sletter du en ejendel igen, falder
