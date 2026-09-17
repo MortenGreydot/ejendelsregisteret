@@ -76,9 +76,7 @@ export function PricingHero({
         <h1 className=" font-display text-[36px] font-bold text-navy">
           {plan.headline}
         </h1>
-        <h2 className="mt-4 font-display text-[24px] font-normal text-navy">
-          Registere dig her og sikre at dine ejendele er dokumenteret
-        </h2>
+   
 
         <div className="mt-4 flex justify-center">
           <PlanCard
