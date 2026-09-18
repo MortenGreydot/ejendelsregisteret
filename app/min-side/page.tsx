@@ -78,7 +78,7 @@ export default async function MyAccountPage({
       .maybeSingle(),
     supabase
       .from("subscriptions")
-      .select("status, monthly_price, included_items, current_period_end, cancel_at_period_end")
+      .select("status, monthly_price, included_items, current_period_end, cancel_at_period_end, stripe_subscription_id")
       .eq("user_id", userId)
       .maybeSingle(),
     supabase
@@ -140,16 +140,40 @@ export default async function MyAccountPage({
 
   const isBusiness = profile?.account_type === "business";
   const plan = isBusiness ? PLANS.erhverv : PLANS.privat;
-  const planName = isBusiness ? "Erhverv" : "Personlig";
+  // Samme navn som på prissiden. "Personlig" her og "Privat" alle andre
+  // steder fik det til at se ud som to forskellige medlemskaber.
+  const planName = plan.name;
   const status = (subscription?.status ?? null) as SubscriptionStatus;
+
+  /**
+   * Om abonnementets tal kommer fra Stripe.
+   *
+   * Pris, antal inkluderede ejendele og næste betaling skrives af webhooken
+   * ud fra kundens faktiske pris. En række uden Stripe-abonnement — oprettet
+   * i hånden, eller én der aldrig nåede gennem betaling — har kun
+   * kolonnernes standardværdier stående (29 kr. og 5 ejendele fra før
+   * prisændringen), og dem må siden ikke vise som om de var kundens aftale.
+   */
+  const fraStripe = Boolean(subscription?.stripe_subscription_id);
   // Abonnementets eget tal er kun sandt når webhooken har sat det ud fra
   // kundens Stripe-pris, dvs. når medlemskabet er aktivt. Før betaling står
   // databasens standardværdi i rækken, og den passer ikke til nogen plan —
   // så vises planens tal i stedet.
   const includedItems =
-    status === "active" && subscription?.included_items != null
+    fraStripe && subscription?.included_items != null
       ? subscription.included_items
       : plan.includedItems;
+
+  const monthlyPrice =
+    fraStripe && subscription?.monthly_price != null
+      ? Number(subscription.monthly_price)
+      : plan.monthlyPrice;
+
+  // Uden et Stripe-abonnement er der ingen betaling planlagt, uanset hvad
+  // der måtte stå i current_period_end.
+  const nextPayment = fraStripe
+    ? dkDate(subscription?.current_period_end ?? null)
+    : null;
   const hasSubscription = status === "active";
 
   return (
@@ -187,12 +211,8 @@ export default async function MyAccountPage({
             itemCount={items.length}
             includedItems={includedItems}
             planName={planName}
-            monthlyPrice={
-              subscription?.monthly_price != null
-                ? Number(subscription.monthly_price)
-                : null
-            }
-            nextPayment={dkDate(subscription?.current_period_end ?? null)}
+            monthlyPrice={monthlyPrice}
+            nextPayment={nextPayment}
             createdAt={dkMonth(profile?.created_at ?? null)}
           />
 
@@ -216,12 +236,8 @@ export default async function MyAccountPage({
               <PlanPanel
                 planName={planName}
                 includedItems={includedItems}
-                monthlyPrice={
-                  subscription?.monthly_price != null
-                    ? Number(subscription.monthly_price)
-                    : null
-                }
-                nextPayment={dkDate(subscription?.current_period_end ?? null)}
+                monthlyPrice={monthlyPrice}
+                nextPayment={nextPayment}
                 hasSubscription={hasSubscription}
                 cancelAtPeriodEnd={subscription?.cancel_at_period_end ?? false}
                 itemCount={items.length}

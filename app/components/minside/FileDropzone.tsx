@@ -136,7 +136,7 @@ export function FileDropzone({
             type="button"
             disabled={disabled}
             onClick={() => inputRef.current?.click()}
-            className="font-semibold text-orange hover:text-orange-dark disabled:opacity-60"
+            className="font-semibold text-orange hover:text-orange-dark hover:underline disabled:opacity-60"
           >
             klik for at vælge
           </button>

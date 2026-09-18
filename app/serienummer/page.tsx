@@ -14,16 +14,17 @@ export const metadata: Metadata = {
 
 const USES = [
   {
-    title: "Inden du køber brugt",
-    body: "Bed sælgeren om serienummeret og slå det op. Er genstanden meldt stjålet, ved du det inden du betaler.",
+    title: "Ungå hælervarer",
+    body: "Tjek altid serienummeret, inden du køber brugt. ",
+  },
+
+  {
+    title: "Når du har fundet noget",
+    body: "Tjek serienummeret, så kan du se ejeren. Er nummeret ikke registeret opret det fundne på hittegodscentralen.dk ",
   },
   {
-    title: "Hvis du har fundet noget",
-    body: "Står nummeret registreret, kan du skrive til ejeren gennem os. Du får ikke deres oplysninger, men de kan svare dig direkte.",
-  },
-  {
-    title: "Hvis du er politi eller forhandler",
-    body: "Slå nummeret op og se om genstanden er meldt savnet eller stjålet af sin ejer.",
+    title: "For politiet",
+    body: "Tjek serienummeret og se hvem ejeren er.",
   },
 ];
 
@@ -107,8 +108,8 @@ export default async function SerialLookupPage({
 
           <p className="mt-3 text-[13px] text-muted">
             Bindestreger, mellemrum og store/små bogstaver er uden betydning.
-            Nummeret skal derimod være fuldstændigt. Der søges ikke på dele
-            af et serienummer.
+            Nummeret skal derimod være fuldstændigt. Der søges ikke på dele af
+            et serienummer.
           </p>
 
           {query.length === 0 && (

@@ -76,7 +76,7 @@ export function PricingHero({
         <h1 className=" font-display text-[36px] font-bold text-navy">
           {plan.headline}
         </h1>
-   
+        <p className="mt-4 text-[16px] text-navy"></p>
 
         <div className="mt-4 flex justify-center">
           <PlanCard

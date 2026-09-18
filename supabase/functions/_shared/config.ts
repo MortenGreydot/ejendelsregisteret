@@ -22,6 +22,22 @@ export function getStripe(): Stripe {
 
 export type PlanId = "privat" | "erhverv";
 
+/**
+ * Inkluderede ejendele pr. plan. Kun en nødløsning.
+ *
+ * Det rigtige tal læses fra kundens pris i Stripe (første trins grænse, se
+ * includedItemsOf i stripe-webhook). Det her bruges kun hvis prisen ikke er
+ * sat op som forventet — ellers ville kolonnens standardværdi på 5 fra før
+ * prisændringen blive stående, og kunden ville se et forkert antal.
+ *
+ * Skal matche includedItems i lib/plans.ts. Edge-koden kan ikke importere
+ * derfra, da Next og Deno er hver sin runtime.
+ */
+export const INCLUDED_ITEMS_FALLBACK: Record<PlanId, number> = {
+  privat: 20,
+  erhverv: 25,
+};
+
 /** profiles.account_type har CHECK (private, business) — ikke de danske slugs. */
 export const ACCOUNT_TYPE: Record<PlanId, "private" | "business"> = {
   privat: "private",

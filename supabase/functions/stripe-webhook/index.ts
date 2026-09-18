@@ -9,6 +9,8 @@ import {
 } from "../_shared/mails.ts";
 import { getRecipient } from "../_shared/recipient.ts";
 import {
+  INCLUDED_ITEMS_FALLBACK,
+  isPlanId,
   mapStatus,
   setupPriceIds,
   getStripe,
@@ -104,11 +106,7 @@ async function onCheckoutCompleted(
       stripe_subscription_id: subscription.id,
       stripe_customer_id: String(subscription.customer),
       monthly_price: monthlyPriceOf(subscription),
-      // Kun hvis Stripe oplyser det. Ellers bliver den eksisterende værdi
-      // stående frem for at blive overskrevet med noget gættet.
-      ...(includedItemsOf(subscription) !== null
-        ? { included_items: includedItemsOf(subscription) }
-        : {}),
+      included_items: includedItemsFor(subscription, session),
       activated_at: new Date().toISOString(),
       current_period_start: periodOf(subscription).start,
       current_period_end: periodOf(subscription).end,
@@ -382,6 +380,29 @@ function periodOf(subscription: Stripe.Subscription): {
  * Kræver at abonnementet er hentet med items.data.price.tiers udfoldet,
  * som i onCheckoutCompleted. Eventets egen payload har dem ikke.
  */
+/**
+ * Antallet der skrives på abonnementet ved gennemført betaling.
+ *
+ * Stripes pris først, planens tal som nødløsning. Uden nødløsningen blev
+ * kolonnens standardværdi på 5 stående, hvis prisen i Stripe ikke var sat
+ * op med trin — og så viste Min side 5 til en kunde der betaler for 20.
+ * Nødløsningen logges, så en forkert opsat pris kan findes og rettes.
+ */
+function includedItemsFor(
+  subscription: Stripe.Subscription,
+  session: Stripe.Checkout.Session,
+): number {
+  const fraStripe = includedItemsOf(subscription);
+  if (fraStripe !== null) return fraStripe;
+
+  const planId = session.metadata?.plan_id;
+  const plan = isPlanId(planId) ? planId : "privat";
+  console.warn(
+    `stripe-webhook: kunne ikke læse inkluderede ejendele fra prisen på ${subscription.id} — bruger planens ${INCLUDED_ITEMS_FALLBACK[plan]} (${plan})`,
+  );
+  return INCLUDED_ITEMS_FALLBACK[plan];
+}
+
 function includedItemsOf(subscription: Stripe.Subscription): number | null {
   const tiered = subscription.items.data.find(
     (item) => item.price.billing_scheme === "tiered",
