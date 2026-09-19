@@ -15,7 +15,15 @@ export async function getRecipient(
   admin: SupabaseClient,
   userId: string,
 ): Promise<{ email: string; name: string | null } | null> {
-  const { data, error } = await admin.auth.admin.getUserById(userId);
+  const authAdmin = admin.auth?.admin;
+  if (!authAdmin) return null;
+
+  const getUser =
+    typeof authAdmin.getUserById === "function"
+      ? authAdmin.getUserById(userId)
+      : authAdmin.getUser({ id: userId });
+
+  const { data, error } = await getUser;
   if (error || !data.user?.email) return null;
 
   const { data: profile } = await admin

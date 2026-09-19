@@ -46,9 +46,24 @@ export async function invokeFunction<T>(
       }
     }
 
+    const details =
+      typeof error === "object" && error
+        ? ((error as { details?: unknown; hint?: unknown }).details ??
+            (error as { hint?: unknown }).hint)
+        : undefined;
+
+    if (typeof details === "string" && details.trim()) {
+      return { data: null, error: serverMessage(details, FALLBACK) };
+    }
+
     return {
       data: null,
-      error: serverMessage(error.message, FALLBACK),
+      error: serverMessage(
+        typeof error === "object" && error && "message" in error
+          ? String((error as { message?: string }).message)
+          : null,
+        FALLBACK,
+      ),
     };
   } catch (caught) {
     // Hertil når vi ved netværksfejl og ved kast inde i klienten. Uden
