@@ -177,9 +177,15 @@ export function serverMessage(
 
   // Stripe og Deno svarer på engelsk. Et dansk bogstav eller et af de få
   // ord vi selv bruger er nok til at se at beskeden er skrevet til en bruger.
+  //
+  // Listen skal dække hver eneste besked funktionerne selv sender. Manglede
+  // "er", "skriv" og "lidt", blev "Navnet er for langt." og "Skriv lidt mere
+  // om hvad det drejer sig om." taget for engelsk og byttet ud med den
+  // intetsigende fallback — brugeren fik aldrig at vide hvad der var galt.
+  // Ordene her findes ikke i engelske fejltekster.
   const looksDanish =
     /[æøåÆØÅ]/.test(error) ||
-    /\b(kunne|skal|ikke|du|der|dit|din|allerede|ukendt|ingen|prøv|mangler)\b/i.test(
+    /\b(kunne|skal|ikke|du|der|dit|din|allerede|ukendt|ingen|prøv|mangler|er|og|skriv|tjek|lidt|hvad|det|vi|eller)\b/i.test(
       error,
     );
 
