@@ -8,6 +8,13 @@
   */
   --breakpoint-compact: 900px;
 
+  /*
+    De smalleste telefoner. iPhone SE og mini er 375px, og ældre Android
+    helt ned til 360 — dér løber navbarens øverste række tør for plads.
+    Giver både `tiny:` og `max-tiny:` som varianter.
+  */
+  --breakpoint-tiny: 420px;
+
   /* Brand */
   --color-navy: #1c2d4f;
 

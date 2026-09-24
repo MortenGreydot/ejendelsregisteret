@@ -13,21 +13,24 @@ export function Hero({ plan }: { plan: Plan }) {
   return (
     <section className="photo-hero">
       <div className="mx-auto max-w-3xl px-6 py-8 text-center">
-        <p className="mb-2 font-display text-[20px] text-white/60">
-          Inventarlisten{" "}
-          <em className="font-accent pr-[0.14em] text-orange">en del af</em>{" "}
-          Ejendelsregisteret
-        </p>
+        <h1 className="m-0">
+          <span className="block text-[clamp(39px,5vw,59px)] leading-none text-white">
+            Inventarlisten
+          </span>
+
+          <span className="block text-[24px] tracking-normal text-[#ef7628]">
+            en del af
+          </span>
+          <span className="block text-[46px] leading-none text-white">
+            Ejendelsregisteret
+          </span>
+        </h1>
 
         <p className="text-[13px] font-semibold uppercase tracking-[0.25em] text-orange">
           Dækker alt - over alt
         </p>
-
-        <h1 className="mt-2 font-display text-[46px] leading-[1.1] font-normal text-white sm:text-[56px]">
-          Bevis at dine ting er
-          <br />
-          <em className="font-accent text-orange"> dine</em>
-        </h1>
+        {/*           Bevis at dine ting er{" "}
+          <em className="font-accent text-orange"> dine</em>  */}
 
         <p className="mx-auto mt-6 max-w-xl text-[17px] leading-[1.6] text-white/85">
           Serienummer, kvittering og billeder samlet ét sted. Opret dig og dine
@@ -48,7 +51,7 @@ export function Hero({ plan }: { plan: Plan }) {
             href="/bliv-medlem"
             className="inline-flex h-12 items-center gap-2 rounded-sm bg-orange px-8 text-[16px] font-bold text-white transition-colors hover:bg-orange-dark"
           >
-            Se mere
+            Opret dig
             <ArrowRight className="size-4" strokeWidth={2.5} />
           </Link>
           <Link

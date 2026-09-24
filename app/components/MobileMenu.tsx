@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 
 import { SECTIONS, isActivePath } from "@/lib/nav";
 
+import { AudienceSwitch } from "./AudienceSwitch";
 import { AuthMenu } from "./AuthMenu";
 import { NavSearch } from "./NavSearch";
 
@@ -80,6 +81,21 @@ export function MobileMenu({ signedIn }: { signedIn: boolean }) {
           >
             <X className="size-5" strokeWidth={1.75} />
           </button>
+        </div>
+
+        {/* Kun under 400px, hvor navbaren ikke har plads til skiftet.
+            Derover står det i navbaren, og to steder at vælge det samme
+            ville se ud som to forskellige indstillinger. */}
+        <div
+          onClick={() => setOpen(false)}
+          className="border-b border-white/15 px-5 py-4 min-[400px]:hidden"
+        >
+          <span className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-white/50">
+            Viser
+          </span>
+          <div className="mt-2">
+            <AudienceSwitch />
+          </div>
         </div>
 
         <div className="border-b border-white/15 px-5 py-4">

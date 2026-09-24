@@ -42,13 +42,21 @@ export async function Navbar() {
               <span className="block font-display text-[21px] font-bold tracking-tight sm:text-[23px]">
                 Ejendelsregisteret
               </span>
-              <span className="mt-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-orange">
+
+              <span className="mt-1 block text-[10px] font-semibold uppercase tracking-[0.12em] text-orange tiny:text-[11px] tiny:tracking-[0.18em]">
                 Dækker alt - over alt
               </span>
             </span>
           </Link>
 
-          <AudienceSwitch />
+          {/* Under 400px er der ikke plads til både mærket og skiftet, og
+              skiftet flytter i stedet ind i menuen — se MobileMenu. Grænsen
+              er skrevet direkte frem for som et navngivet breakpoint: den
+              ligger 20px fra `tiny`, og to navne så tæt på hinanden ville
+              være svære at holde fra hinanden. */}
+          <div className="max-[400px]:hidden">
+            <AudienceSwitch />
+          </div>
 
           <div className="ml-auto flex items-center gap-5">
             {/* Søgefeltet og login-knapperne fylder for meget på en telefon

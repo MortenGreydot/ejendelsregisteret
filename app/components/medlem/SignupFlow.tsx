@@ -244,7 +244,16 @@ export function SignupFlow({
                 >
                   {done ? <Check className="size-3" strokeWidth={3} /> : i + 1}
                 </span>
-                <span className={current ? "text-navy" : "text-muted"}>
+                {/*
+                  Skjult for øjet på telefon, men ikke for skærmlæsere:
+                  sr-only frem for hidden. Prikkerne alene siger "3 af 3"
+                  til den der kan se dem, og ingenting til den der ikke kan.
+                */}
+                <span
+                  className={`sr-only sm:not-sr-only ${
+                    current ? "text-navy" : "text-muted"
+                  }`}
+                >
                   {s.label}
                 </span>
                 {i < STEP_LABELS.length - 1 && (
@@ -259,7 +268,7 @@ export function SignupFlow({
       <div className="mt-4">
         {step === "plan" && (
           <>
-            <p className="text-center text-[15px] text-body">
+            <p className="text-center text-[20px] text-body">
               Skift mellem{" "}
               <AudienceLink
                 target="privat"
@@ -278,7 +287,7 @@ export function SignupFlow({
               </AudienceLink>
             </p>
 
-            <div className="mx-auto mt-8 max-w-sm rounded-sm border border-line bg-white px-8 pb-8">
+            <div className="mx-auto mt-4 max-w-sm rounded-sm border border-line bg-white px-8 pb-8">
               <h2 className="mt-4 font-display text-[16px] font-normal text-navy border-b  border-line">
                 Opret medlemskab, register og dokumenter.
               </h2>
